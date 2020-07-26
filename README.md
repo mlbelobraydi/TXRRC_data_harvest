@@ -5,12 +5,7 @@ This is currently in development. This is my first public repository, so I'm sur
 
 The goal is to provide scripts to help download and organize the oil and gas well data provided publicly from the Texas Railroad Commission (TXRRC).
 
-## Texas Railroad Commission Well Bore Database manual
+## TXRRC Data Source
 
-PDF Manual: https://www.rrc.texas.gov/media/41906/wba091_well-bore-database.pdf
+https://github.com/mlbelobraydi/TXRRC_data_harvest/wiki/TXRRC-Data-Source-Reference
 
-##  Example data files
-
-File: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
-
-Source: https://www.rrc.texas.gov/about-us/resource-center/research/data-sets-available-for-download/
