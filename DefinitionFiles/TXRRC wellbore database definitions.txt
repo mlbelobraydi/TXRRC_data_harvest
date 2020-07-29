@@ -17,7 +17,7 @@ WBROOT_01 = [
             ('WB-RES-CNTY-CODE',16,3,'pic_numeric'),
             ('WB-ORIG-COMPL-DATE',20,8,'pic_yyyymmdd'), ##YYYYMMDD Combines WB-ORIG-COMPL-CENT&YY&MM&DD
             ('WB-TOTAL-DEPTH',28,5,'pic_numeric'),
-            ('WB-VALID-FLUID-LEVEL'33,5,'pic_numeric'),
+            ('WB-VALID-FLUID-LEVEL',33,5,'pic_numeric'),
             ('WB-CERTIFICATION-REVOKED-DATE',38,8,'pic_yyyymmdd'), ##YYYYMMDD Combines WB-CERT-REVOKED-CC&YY&MM&DD
             ('WB-CERTIFICATION-DENIAL-DATE',46,8,'pic_yyyymmdd'), ##YYYYMMDD Combines WB-CERTIFICATION-DENIAL-CC&YY&MM&DD
             ('WB-DENIAL-REASON-FLAG',56,1,'pic_any'),
@@ -32,8 +32,8 @@ WBROOT_01 = [
             ('WB-PLUG-FLAG',90,1,'pic_any'),
             ('WB-PREVIOUS-API-NBR',91,8,'pic_numeric'),
             ('WB-COMPLETION-DATA-IND',99,1,'pic_any'),
-            ('WB-HIST-DATE-SOURCE-FLAG',100,1,pic_numeric),
-            ('WB-EX14B2-COUNT',102,2,pic_numeric),
+            ('WB-HIST-DATE-SOURCE-FLAG',100,1,'pic_numeric'),
+            ('WB-EX14B2-COUNT',102,2,'pic_numeric'),
             ('WB-DESIGNATION-HB-1975-FLAG',104,1,'pic_any'),
             ('WB-DESIGNATION-EFFECTIVE-DATE',105,6,'pic_yyyymm'), ##YYYYMM Combines WB-DESIGNATION-EFFEC-CC&YY&MM
             ('WB-DESIGNATION-REVISED-DATE',111,6,'pic_yyyymm'), ##YYYYMM Combines WB-DESIGNATION-REVISED-CC&YY&MM
@@ -213,11 +213,11 @@ WBNEWLOC_13 = [
             ('WB-DIREC-FROM-SUR-SECT-1',100,13,'pic_any'),
             ('WB-FEET-FROM-SUR-SECT-2',113,6,'pic_numeric'),
             ('WB-DIREC-FROM-SUR-SECT-2',119,13,'pic_any'),
-            ('WB-WGS84-LATITUDE',132,,''), ##PIC S9(3)V9(7) ##DDD.DDDDDDD ISSUE WITH characters at end of each section
-            ('WB-WGS84-LONGITUDE',142,,''), ##PIC S9(3)V9(7) ##DDD.DDDDDDD ISSUE WITH characters at end of each section
+            ('WB-WGS84-LATITUDE',132,9,'pic_latlong'), ##PIC S9(3)V9(7) ##DDD.DDDDDDD ISSUE WITH characters at end of each section
+            ('WB-WGS84-LONGITUDE',142,9,'pic_latlong'), ##PIC S9(3)V9(7) ##DDD.DDDDDDD ISSUE WITH characters at end of each section
             ('WB-PLANE-ZONE',157,2,'pic_numeric'),
-            ('WB-PLANE-COORDINATE-EAST',159,,''), ##PIC S9(8)V9(2) TX State plane ft NAD27 DDDDDDDD.DD ISSUE WITH characters at end of each section
-            ('WB-PLANE-COORDINATE-NORTH',169,,''), ##PIC S9(8)V9(2) TX State plane ft NAD27 DDDDDDDD.DD ISSUE WITH characters at end of each section
+            ('WB-PLANE-COORDINATE-EAST',159,9,'pic_coord'), ##PIC S9(8)V9(2) TX State plane ft NAD27 DDDDDDDD.DD ISSUE WITH characters at end of each section
+            ('WB-PLANE-COORDINATE-NORTH',169,9,'pic_coord'), ##PIC S9(8)V9(2) TX State plane ft NAD27 DDDDDDDD.DD ISSUE WITH characters at end of each section
             ('WB-VERIFICATION-FLAG',177,1,'pic_any') #N = not verified, Y = verified, C = verified change
             ]
 
@@ -521,7 +521,7 @@ WBW3C_27 = [
             ('WB-W3C-5YR-FILED-DATE',18,8,'pic_numeric'),
             ('WB-W3C-5YR-FILING-OPER',26,6,'pic_numeric'),
             ('WB-W3C-10YR-FLAG',32,1,'pic_any'),
-            ('WB-W3C-10YR-FILED-DATE',33,8,''pic_numeric),
+            ('WB-W3C-10YR-FILED-DATE',33,8,'pic_numeric'),
             ('WB-W3C-10YR-FILING-OPER',41,6,'pic_numeric'),
             ('WB-W3C-14B2-REMOVAL-DATE',48,8,'pic_yyyymmdd'), ##YYYYMMDD
             ('WB-W3C-EXTENSION-FLAG',55,1,'pic_any'),
