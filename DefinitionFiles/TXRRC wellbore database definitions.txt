@@ -10,11 +10,11 @@ This is subject to change to fit SQL tables or JSON storage.
 
 WBROOT_01 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WELL-BORE-API-ROOT',2,8,'pic_numeric'), ## Combines WB-API-CNTY and WB-API-UNIQUE
-            ('WB-NXT-AVAIL-SUFFIX',10,2,'pic_numeric'),
-            ('WB-NXT-AVAIL-HOLE-CHGE-NBR',12,2,'pic_numeric'),
-            ('WB-FIELD-DISTRICT',14,2,'pic_numeric'),
-            ('WB-RES-CNTY-CODE',16,3,'pic_numeric'),
+            ('WELL-BORE-API-ROOT',2,8,'pic_any'), ## Combines WB-API-CNTY and WB-API-UNIQUE
+            ('WB-NXT-AVAIL-SUFFIX',10,2,'pic_any'),
+            ('WB-NXT-AVAIL-HOLE-CHGE-NBR',12,2,'pic_any'),
+            ('WB-FIELD-DISTRICT',14,2,'pic_any'),
+            ('WB-RES-CNTY-CODE',16,3,'pic_any'),
             ('WB-ORIG-COMPL-DATE',20,8,'pic_yyyymmdd'), ##YYYYMMDD Combines WB-ORIG-COMPL-CENT&YY&MM&DD
             ('WB-TOTAL-DEPTH',28,5,'pic_numeric'),
             ('WB-VALID-FLUID-LEVEL',33,5,'pic_numeric'),
@@ -22,15 +22,15 @@ WBROOT_01 = [
             ('WB-CERTIFICATION-DENIAL-DATE',46,8,'pic_yyyymmdd'), ##YYYYMMDD Combines WB-CERTIFICATION-DENIAL-CC&YY&MM&DD
             ('WB-DENIAL-REASON-FLAG',56,1,'pic_any'),
             ('WB-ERROR-API-ASSIGN-CODE',55,1,'pic_any'),
-            ('WB-REFER-CORRECT-API-NBR',56,8,'pic_numeric'),
-            ('WB-DUMMY-API-NUMBER',64,8,'pic_numeric'),
+            ('WB-REFER-CORRECT-API-NBR',56,8,'pic_any'),
+            ('WB-DUMMY-API-NUMBER',64,8,'pic_any'),
             ('WB-DATE-DUMMY-REPLACED',72,8,'pic_yyyymmdd'), ##YYYYMMDD
             ('WB-NEWEST-DRL-PMT-NBR',80,6,'pic_numeric'),
             ('WB-CANCEL-EXPIRE-CODE',86,1,'pic_any'),
             ('WB-EXCEPT-13-A',88,1,'pic_any'),
             ('WB-FRESH-WATER-FLAG',89,1,'pic_any'),
             ('WB-PLUG-FLAG',90,1,'pic_any'),
-            ('WB-PREVIOUS-API-NBR',91,8,'pic_numeric'),
+            ('WB-PREVIOUS-API-NBR',91,8,'pic_any'),
             ('WB-COMPLETION-DATA-IND',99,1,'pic_any'),
             ('WB-HIST-DATE-SOURCE-FLAG',100,1,'pic_numeric'),
             ('WB-EX14B2-COUNT',102,2,'pic_numeric'),
@@ -42,7 +42,7 @@ WBROOT_01 = [
             ('WB-WATER-LAND-CODE',131,1,'pic_any'),
             ('WB-TOTAL-BONDED-DEPTH',132,6,'pic_numeric'),
             ('WB-OVERRIDE-EST-PLUG-COST',138,7,'pic_numeric'),
-            ('WB-SHUT-IN-DATE',145,6,'pic_numeric'), ##YYYYMM
+            ('WB-SHUT-IN-DATE',145,6,'pic_yyyymm'), ##YYYYMM
             ('WB-OVERRIDE-BONDED-DEPTH',151,6,'pic_numeric'),
             ('WB-SUBJ-TO-14B2-FLAG',157,1,'pic_any'),
             ('WB-PEND-REMOVAL-14B2-FLAG',158,1,'pic_any'),
@@ -50,12 +50,9 @@ WBROOT_01 = [
             ('WB-W3X-WELL-FLAG',160,1,'pic_any')
             ]
 
-WBCOMPL_02oil =[
+WBCOMPL_02 =[
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-OIL-CODE',2,1,'pic_any'), ##If gas use WBCOMPL_02gas
-            ('WB-OIL-DIST',3,2,'pic_numeric'), ##If gas use WBCOMPL_02gas
-            ('WB-OIL-LSE-NBR',5,5,'pic_numeric'), ##If gas use WBCOMPL_02gas
-            ('WB-OIL-WELL-NBR',10,6,'pic_any'), ##If gas use WBCOMPL_02gas
+            ('WB-OIL-GAS-INFO',2,14,'pic_any'),##Needs to be separated out later for oil and gas wells
             ('WB-GAS-DIST',16,2,'pic_numeric'),
             ('WB-GAS-WELL-NO',18,6,'pic_any'),
             ('WB-MULTI-WELL-REC-NBR',24,1,'pic_any'),
@@ -68,23 +65,14 @@ WBCOMPL_02oil =[
             ('WB-P-12',156,1,'pic_any'),
             ('WB-PLUG-DATE-POINTER',157,8,'pic_numeric')
             ]
-
-WBCOMPL_02gas =[
-            ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-GAS-CODE',2,1,'pic_any'), ##If oil use WBCOMPL_02oil
-            ('WB-GAS-RRC-ID',3,6,'pic_numeric'), ##If oil use WBCOMPL_02oil
-            ('WB-GAS-DIST',16,2,'pic_numeric'),
-            ('WB-GAS-WELL-NO',18,6,'pic_any'),
-            ('WB-MULTI-WELL-REC-NBR',24,1,'pic_any'),
-            ('WB-API-SUFFIX',25,2,'pic_numeric'),
-            ('WB-ACTIVE-INACTIVE-CODE',45,1,'pic_any'),
-            ('WB-DWN-HOLE-COMMINGLE-CODE',86,1,'pic_any'),
-            ('WB-CREATED-FROM-PI-FLAG',121,1,'pic_any'),
-            ('WB-RULE-37-NBR',122,7,'pic_numeric'),
-            ('WB-P-15',155,1,'pic_any'),
-            ('WB-P-12',156,1,'pic_any'),
-            ('WB-PLUG-DATE-POINTER',157,8,'pic_numeric')
-            ]
+#for WBCOMPL_02 'WB-OIL-GAS-INFO' needs to be separated based on fluid type (could be dry and null?)
+# if oil    ('WB-OIL',2,1,'pic_any'),
+#           ('WB-OIL-DISTRICT',3,2,'pic_numeric'),
+#           ('WB-OIL-LSE-NUMBER',5,5,'pic_numeric'),
+#           ('WB-OIL-WELL-NUMBER',10,6,'pic_any')
+#
+#if gas     ('WB-GAS',2,1,'pic_any'),
+#           ('WB-GAS-RRCID',3,6,'pic_numeric')
 
 WBDATE_03 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -221,7 +209,7 @@ WBNEWLOC_13 = [
             ('WB-VERIFICATION-FLAG',177,1,'pic_any') #N = not verified, Y = verified, C = verified change
             ]
 
-WBPLUG_14oil = [
+WBPLUG_14 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-DATE-W3-FILED',2,8,'pic_yyyymmdd'), ##YYYYMMDD
             ('WB-DATE-WELL-BORE-PLUGGED',10,8,'pic_yyyymmdd'), ##YYYYMMDD
@@ -239,10 +227,7 @@ WBPLUG_14oil = [
             ('WB-PLUG-FRESH-WATER-DEPTH',131,5,'pic_numeric'),
             ('WB-PLUG-UWQP',136,40,'pic_any'), ##REDEFINES  WB-PLUG-UWQP. WB-PLUG-FROM-UWQP  OCCURS 4 TIMES PIC 9(05), WB-PLUG-TO-UWQP    OCCURS 4 TIMES PIC 9(05)
             ('WB-PLUG-MATERIAL-LEFT',176,1,'pic_any'),
-            ('WB-PLUG-OIL-CODE',177,1,'pic_any'), ##if gas use WBPLUG_14gas
-            ('WB-PLUG-OIL-DIST',178,2,'pic_numeric'), ##if gas use WBPLUG_14gas
-            ('WB-PLUG-OIL-LSE-NBR',180,5,'pic_numeric'), ##if gas use WBPLUG_14gas
-            ('WB-PLUG-OIL-WELL-NBR',185,6,'pic_any'), ##if gas use WBPLUG_14gas
+            ('WB-OIL-GAS-INFO',177,14,'pic_any'),##Needs to be separated out later for oil and gas wells
             ('WB-PLUG-GAS-DIST',191,2,'pic_numeric'),
             ('WB-PLUG-GAS-WELL-NO',193,6,'pic_any'),
             ('WB-PLUG-TYPE-WELL',199,1,'pic_any'), ##O=Oil, G=Gas, D=Dry, S=Service
@@ -253,37 +238,14 @@ WBPLUG_14oil = [
             ('WB-PLUG-LOG-FILE-RBA',211,8,'pic_numeric'),
             ('WB-STATE-FUNDED-PLUG-NUMBER',219,7,'pic_numeric')
             ]
-
-WBPLUG_14gas = [
-            ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-DATE-W3-FILED',2,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB-DATE-WELL-BORE-PLUGGED',10,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB-PLUG-TOTAL-DEPTH',18,5,'pic_numeric'),
-            ('WB-PLUG-CEMENT-COMP',23,32,'pic_any'),
-            ('WB-PLUG-MUD-FILLED',55,1,'pic_any'),
-            ('WB-PLUG-MUD-APPLIED',56,12,'pic_any'),
-            ('WB-PLUG-MUD-WEIGHT',68,3,'pic_numeric'),
-            ('WB-PLUG-DRIL-PERM-DATE',75,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB-PLUG-DRIL-PERM-NO',83,6,'pic_numeric'),
-            ('WB-PLUG-DRIL-COMP-DATE',89,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB-PLUG-LOG-ATTACHED',97,1,'pic_any'),
-            ('WB-PLUG-LOG-RELEASED-TO',98,32,'pic_any'),
-            ('WB-PLUG-TYPE-LOG',130,1,'pic_any'), ##D=Drillers E=Electric R=Radioactivity A=Acoustical-sonic F=Dril-and-Elec G=Elec-and-Radio H=radio-and-acous I=Dril-and-acous J=elec-and-acous K=dril-and-acous L=dril-elec-radio M=elec-radio-acous N=Dril-elec-acous O=dril-radio-acous P=dril-elec-radio-acous
-            ('WB-PLUG-FRESH-WATER-DEPTH',131,5,'pic_numeric'),
-            ('WB-PLUG-UWQP',136,40,'pic_any'), ##REDEFINES  WB-PLUG-UWQP. WB-PLUG-FROM-UWQP  OCCURS 4 TIMES PIC 9(05), WB-PLUG-TO-UWQP    OCCURS 4 TIMES PIC 9(05)
-            ('WB-PLUG-MATERIAL-LEFT',176,1,'pic_any'),
-            ('WB-PLUG-GAS-CODE',177,1,'pic_any'), ##If oil use WBPLUG_14oil
-            ('WB-PLUG-GAS-RRC-ID',178,6,'pic_numeric'), ##If oil use WBPLUG_14oil
-            ('WB-PLUG-GAS-DIST',191,2,'pic_numeric'),
-            ('WB-PLUG-GAS-WELL-NO',193,6,'pic_any'),
-            ('WB-PLUG-TYPE-WELL',199,1,'pic_any'), ##O=Oil, G=Gas, D=Dry, S=Service
-            ('WB-PLUG-MULTI-COMPL-FLAG',200,1,'pic_any'),
-            ('WB-PLUG-CEM-AFF',201,1,'pic_any'), ##Y=WB-PLUG-CA-FILED N=WB-PLUG-CA-NOT-FILED
-            ('WB-PLUG-13A',202,1,'pic_any'), ##Y=WB-PLUG-13A-FILED N=WB-PLUG-13A-NOT-FILED
-            ('WB-PLUG-LOG-RELEASED-DATE',203,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB-PLUG-LOG-FILE-RBA',211,8,'pic_numeric'),
-            ('WB-STATE-FUNDED-PLUG-NUMBER',219,7,'pic_numeric')
-            ]
+#for WBPLUG_14 'WB-OIL-GAS-INFO' needs to be separated based on fluid type (could be dry and null?)
+# if oil    ('WB-PLUG-OIL-CODE',177,1,'pic_any'), 
+#           ('WB-PLUG-OIL-DIST',178,2,'pic_numeric'), 
+#           ('WB-PLUG-OIL-LSE-NBR',180,5,'pic_numeric'), 
+#           ('WB-PLUG-OIL-WELL-NBR',185,6,'pic_any'), 
+#
+#if gas     ('WB-GAS',177,1,'pic_any'),
+#           ('WB-GAS-RRCID',178,6,'pic_numeric')
 
 WBPLRMKS_15 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -339,26 +301,23 @@ WBDRILL_20 = [
             ('WB-PERMIT-NUMBER',2,6,'pic_numeric')
             ]
 
-WBWELLID_21oil = [
+WBWELLID_21 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-OIL',2,1,'pic_any'),
-            ('WB-OIL-DISTRICT',3,2,'pic_numeric'),
-            ('WB-OIL-LSE-NUMBER',5,5,'pic_numeric'),
-            ('WB-OIL-WELL-NUMBER',10,6,'pic_any')
+            ('WB-OIL-GAS-INFO',2,14,'pic_any'),##Needs to be separated out later for oil and gas wells
             ]
+#for WBWELLID_21 'WB-OIL-GAS-INFO' needs to be separated based on fluid type (could be dry and null?)
+# if oil    ('WB-OIL',2,1,'pic_any'),
+#           ('WB-OIL-DISTRICT',3,2,'pic_numeric'),
+#           ('WB-OIL-LSE-NUMBER',5,5,'pic_numeric'),
+#           ('WB-OIL-WELL-NUMBER',10,6,'pic_any')
+#
+#if gas     ('WB-GAS',2,1,'pic_any'),
+#           ('WB-GAS-RRCID',3,6,'pic_numeric')
 
-WBWELLID_21gas = [
-            ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-GAS',2,1,'pic_any'),
-            ('WB-GAS-RRCID',3,6,'pic_numeric')
-            ]
 
-WB14B2_22oil = [
+WB14B2_22 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB14B2-OIL-CODE',2,1,'pic_any'), ##if gas use WB14B2_22gas
-            ('WB14B2-OIL-DISTRICT',3,2,'pic_numeric'), ##if gas use WB14B2_22gas
-            ('WB14B2-OIL-LEASE-NUMBER',5,5,'pic_numeric'), ##if gas use WB14B2_22gas
-            ('WB14B2-OIL-WELL-NUMBER',10,6,'pic_any'), ##if gas use WB14B2_22gas
+            ('WB-OIL-GAS-INFO',2,14,'pic_any'), ##Needs to be separated out later for oil and gas wells
             ('WB14B2-APPLICATION-NUMBER',16,6,'pic_numeric'),
             ('WB14B2-GAS-DISTRICT',22,2,'pic_numeric'),
             ('WB14B2-EXT-STATUS-FLAG',24,1,'pic_any'), ##A=approved C=cancelled D=Denied E=Expired
@@ -401,53 +360,15 @@ WB14B2_22oil = [
             ('WB14B2-W1X-36-EXP-DATE',142,8,'pic_yyyymmdd'), ##YYYYMMDD WB14B2-W1X-36-EXP-CENT+YEAR+MON+DAY
             ('WB14B2-W1X-36-BOND-NUMBER',150,20,'pic_any')
             ]
+#for WB14B2_22 'WB-OIL-GAS-INFO' needs to be separated based on fluid type (could be dry and null?)
+# if oil    ('WB-OIL',2,1,'pic_any'),
+#           ('WB-OIL-DISTRICT',3,2,'pic_numeric'),
+#           ('WB-OIL-LSE-NUMBER',5,5,'pic_numeric'),
+#           ('WB-OIL-WELL-NUMBER',10,6,'pic_any')
+#
+#if gas     ('WB-GAS',2,1,'pic_any'),
+#           ('WB-GAS-RRCID',3,6,'pic_numeric')
 
-WB14B2_22gas = [
-            ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB14B2-GAS-CODE',2,1,'pic_any'), ##if oil use WB14B2_22oil
-            ('WB14B2-GAS-RRC-ID',3,6,'pic_numeric'), ##if oil use WB14B2_22oil
-            ('WB14B2-APPLICATION-NUMBER',16,6,'pic_numeric'),
-            ('WB14B2-GAS-DISTRICT',22,2,'pic_numeric'),
-            ('WB14B2-EXT-STATUS-FLAG',24,1,'pic_any'), ##A=approved C=cancelled D=Denied E=Expired
-            ('WB14B2-EXT-CANCELLED-REASON',25,1,'pic_any'), ##I=injection P=producing G=plugged S=Service O=cancelled-other
-            ('WB14B2-EXT-APPROVED-DATE',26,8,'pic_yyyymmdd'), ##YYYYMMDD WB14B2-EXT-APPROVED CENT+YEAR+MONTH+DAY
-            ('WB14B2-EXT-EXP-DATE',34,8,'pic_yyyymmdd'), ##YYYYMMDD WB14B2-EXT-EXP-CENT+YEAR+MONTH+DAY
-            ('WB14B2-EXT-DENIED-DATE',42,8,'pic_yyyymmdd'), ##YYYYMMDD WB14B2-EXT-DENIED-CENT+YEAR+MONTH+DAY
-            ('WB14B2-EXT-HIST-DATE',50,8,'pic_yyyymmdd'), ##YYYYMMDD WB14B2-EXT-HIST-CENT+YEAR+MONTH+DAY
-            ('WB14B2-MECH-INTEG-VIOL-FLAG',58,1,'pic_any'),## WB14B2-MECH-INTEG-VIOL VALUE 'H'
-            ('WB14B2-PLUG-ORDER-SF-HOLD-FLAG',59,1,'pic_any'), ## WB14B2-PLUG-ORDER-SF-HOLD VALUE 'E'
-            ('WB14B2-POLLUTION-VIOL-FLAG',60,1,'pic_any'), ## WB14B2-POLLUTION-VIOLVALUE 'P'
-            ('WB14B2-FIELD-OPS-HOLD-FLAG',61,1,'pic_any'), ## WB14B2-FIELD-OPS-HOLD VALUE 'F'
-            ('WB14B2-H15-PROBLEM-FLAG',62,1,'pic_any'), ## WB14B2-H15-PROBLEM VALUE 'V'
-            ('WB14B2-H15-NOT-FILED-FLAG',63,1,'pic_any'), ## WB14B2-H15-NOT-FILED VALUE 'X'
-            ('WB14B2-OPER-DELQ-FLAG',64,1,'pic_any'), ## WB14B2-OPER-DELQ VALUE 'O'
-            ('WB14B2-DISTRICT-HOLD-SFP-FLAG',65,1,'pic_any'), ## WB14B2-DISTRICT-HOLD-SFP VALUE 'T'
-            ('WB14B2-DIST-SF-CLEAN-UP-FLAG',66,1,'pic_any'), ## WB14B2-DIST-SF-CLEAN-UP VALUE 'M'
-            ('WB14B2-DIST-STATE-PLUG-FLAG',67,1,'pic_any'), ## WB14B2-DIST-STATE-PLUG VALUE 'K'
-            ('WB14B2-GOOD-FAITH-VIOL-FLAG',68,1,'pic_any'), ## WB14B2-GOOD-FAITH-VIOL VALUE 'R'
-            ('WB14B2-WELL-OTHER-VIOL-FLAG',69,1,'pic_any'), ## WB14B2-WELL-OTHER-VIOL VALUE 'Q'
-            ('WB14B2-W3C-SURF-EQP-VIOL-FLAG',70,1,'pic_any'), ## WB14B2-W3C-SURF-EQUIP-VIOL VALUE 'S'
-            ('WB14B2-W3X-VIOL-FLAG',71,1,'pic_any'), ## WB14B2-W3X-VIOL VALUE 'W'
-            ('WB14B2-HB2259-W3X-PUB-ENT',79,1,'pic_any'),
-            ('WB14B2-HB2259-W3X-10PCT',80,1,'pic_any'),
-            ('WB14B2-HB2259-W3X-BONDING',81,1,'pic_any'),
-            ('WB14B2-HB2259-W3X-H13-EOR',82,1,'pic_any'), ## WB14B2-HB2259-EOR-REJECTED VALUE 'R'
-            ('WB14B2-HB2259-W3X-AOP',83,1,'pic_any'), ## WB14B2-HB2259-AOP-REJECTEDVALUE 'R'
-            ('WB14B2-HB2259-W3X-MIT',84,1,'pic_any'), ## WB14B2-HB2259-MIT-REJECTED VALUE 'R'
-            ('WB14B2-HB2259-W3X-ESCROW',85,1,'pic_any'), ## WB14B2-HB2259-ESCROW-REJECTED VALUE 'R'
-            ('WB14B2-W3X-FILING-KEY',86,8,'pic_numeric'),
-            ('WB14B2-W3X-AOP-RECEIVED-DATE',94,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB14B2-W3X-AOP-FEE-RCVD-DATE',102,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB14B2-W3X-H15-FEE-RCVD-DATE',110,8,'pic_yyyymmdd'), ##YYYYMMDD
-            ('WB14B2-W3X-ESCROW-FUNDS',118,5,'pic_numeric'), ##ISSUE WB14B2-W3X-ESCROW-FUNDS         VALUE ZEROS PIC 9(05)V99.119 WB14B2-W3X-ESCROW-FUND-SPLIT REDEFINESWB14B2-W3X-ESCROW-FUNDS.07 WB14B2-W3X-ESCROW-FUND-WHOLE               PIC 9(05).07 WB14B2-W3X-ESCROW-FUND-DECIMAL             PIC 9(02).
-            ('WB14B2-60-DAY-LETTER-SENT-FLAG',125,1,'pic_any'),
-            ('WB14B2-W1X-36-NEEDS-BOND-FLAG',126,1,'pic_any'),
-            ('WB14B2-W1X-36-TYPE-COVERAGE',127,1,'pic_any'),## WB14B2-W1X-36-BOND VALUE 'B'  WB14B2-W1X-36-LOC VALUE 'L'
-            ('WB14B2-W1X-36-AMT-FILED',128,9,'pic_numeric'),
-            ('WB14B2-W1X-36-SURETY',137,5,'pic_numeric'),
-            ('WB14B2-W1X-36-EXP-DATE',142,8,'pic_yyyymmdd'), ##YYYYMMDD WB14B2-W1X-36-EXP-CENT+YEAR+MON+DAY
-            ('WB14B2-W1X-36-BOND-NUMBER',150,20,'pic_any')
-            ]
 
 WBH15_23 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -531,7 +452,7 @@ WBW3C_27 = [
             ]
 
 WB14B2RM_28 = [
-            ('RRC-TAPE-RECORD_ID',0,2,'pic_any'),
+            ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-14B2-RMK-LNE-CNT',2,3,'pic_numeric'),
             ('WB-14B2-RMK-DATE',5,8,'pic_yyyymmdd'), ##YYYYMMDD
             ('WB-14B2-RMK-USERID',13,8,'pic_any'),
