@@ -9,3 +9,7 @@ The goal is to provide scripts to help download and organize the oil and gas wel
 
 https://github.com/mlbelobraydi/TXRRC_data_harvest/wiki/TXRRC-Data-Source-Reference
 
+## Other Similar Projects
+
+If this code isn't what you are looking for, here is a list of other TXRRC projects on github.
+https://github.com/mlbelobraydi/TXRRC_data_harvest/wiki/Similar-projects
