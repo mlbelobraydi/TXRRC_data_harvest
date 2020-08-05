@@ -33,7 +33,7 @@ def main():
     API = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
     ct = 0 ##counter for number of records
     check = 0 ##while loop counter based on script
-    check_stop = 10000 ##number of while loop runs to complete before stopping
+    check_stop = 15000 ##number of while loop runs to complete before stopping
     
     
     """DataFrame and JSON items for each sections"""
@@ -78,19 +78,22 @@ def main():
     while check < check_stop: ##if using while loop to limit run
         record = sample_records[ct] ##not necessary for for-loops
         
-        
-        
-        if record.startswith('01'): ##captures the API number for databasing
-            API = '42'+record[2:10]
-        
         startval = str(record[0:2])
+        
+        if startval == '01': ##captures the API number for databasing
+            API = '42'+record[2:10]
+            ##Might be helpful to find the next occurance of a record staring with "01"
+            ##This way all the associated items are added to the right sections with a check of completion
+        
         layout = dbf900_layout(startval)['layout'] ##identifies layout based on record start values
         parsed_vals = parse_record(record, layout) ##formats the record and returns a formated {dict} 
 
         
-        if startval =='01': ##currently reviewing results vs. original record. Use 01 through 28 to check results.
+        if startval =='05': ##currently reviewing results vs. original record. Use 01 through 28 to check results.
             
             check+=1 ##used for while loops to manage run length this location counts for each well
+            
+            ##print(record[0:10]) ##for testing formats as needed
             
             temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
             temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
@@ -101,12 +104,14 @@ def main():
         
         """printable counter and percent to keep track in console"""
         ##the counter isn't necessary, but it helps to determine if it is still running.
-        status = round((ct/total_records)*100,3)
-        sys.stdout.write("\r record:{0} complete:{1}%".format(ct,status))
-        sys.stdout.flush()
+        use_counter = True
+        if use_counter:
+            status = round((ct/total_records)*100,3)
+            sys.stdout.write("\r record:{0} complete:{1}%".format(ct,status))
+            sys.stdout.flush()
         
     
-    print('Writing results to disk...')
+    print('\n Writing results to disk...')
     
     ##Currently writing to CSV
     ##  Could be changed to XLS or written to SQL
