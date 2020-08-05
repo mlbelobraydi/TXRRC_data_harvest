@@ -8,7 +8,7 @@ Created on Tue Aug  4 14:27:23 2020
 #import pandas as pd
 #import ebcdic
 import codecs
-from dbf900_main import parse_record
+from dbf900_main import decode_file, parse_record
 from dbf900_layouts import dbf900_layout
 from dbf900_formats import pic_yyyymmdd, pic_yyyymm, pic_latlong, pic_coord, pic_numeric, pic_any
 
@@ -20,23 +20,15 @@ def main():
     file = r'C:\PublicData\Texas\TXRRC\index\dbf900.ebc' ##Local storage location
     ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
     
-    print('opening',file)
-    with open(file, 'rb') as ebcdicfl: #Reads the .ebc file
-        data = ebcdicfl.read()
-    
-    print('decoding...')
-    ascii_txt = codecs.decode(data, 'cp1140') #decodes the entire .ebc file to ascii
-    ##This decoding method still leaves a few uncoded "/x0" type characters
-    
-    split_records = []
-    
     block_size  = 247 ##block size for each record in the file
     ##Unknown if this holds true for all versions of this file or for other files on TXRRC
     
-    print('separating records...')
-    for index in range(0, len(ascii_txt), block_size): ##Creates an array for all records in the file
-        split_records.append(ascii_txt[index : index + block_size])
-        
+    ##file and block size sent to decode and return record array    
+    split_records = decode_file(file,block_size)
+    ##the records in this array have a leading two character code to
+    ##know how it should be split apart and treated.    
+    
+    
     """
     ##Section for testing the outputs
     """
