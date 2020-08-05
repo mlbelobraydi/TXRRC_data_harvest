@@ -99,7 +99,7 @@ WBDATE_03 = [
 WBRMKS_04 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-RMK-LNE-CNT',2,3,'pic_numeric'),
-            ('WB-RMK-TYPE-CODE',5,1,'pic_any'),
+            ('WB-RMK-TYPE-CODE',5,1,'pic_any'), ##this field does not seem to be populated often
             ('WB-REMARKS',6,70,'pic_any')
             ]
 
