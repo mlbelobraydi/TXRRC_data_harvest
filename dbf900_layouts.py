@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug  4 15:22:54 2020
+Works with dbf900.ebcdic file structure
+    file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
+    file manual: https://www.rrc.texas.gov/media/41906/wba091_well-bore-database.pdf
 
-@author: MBelobraydic
+Code contains:
+    layout definitions for sections 01 to 28:
+        lines 14 through 463
+    subroutine for layout selection to be returned 
+        lines 466 through 502
 """
 
 WBROOT_01 = [
@@ -73,7 +79,7 @@ WBCOMPL_02 =[
 
 WBDATE_03 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-FILE-KEY',2,8,'pic_numeric'),
+            ('WB-FILE-KEY',2,8,'pic_numeric'), ##unique key for section and children
             ('WB-FILE-DATE',10,8,'pic_yyyymmdd'), ##YYYYMMDD
             ('WB-EXCEPT-RULE-11',26,1,'pic_any'),
             ('WB-CEMENT-AFFIDAVIT',27,1,'pic_any'),
@@ -96,14 +102,14 @@ WBDATE_03 = [
             ('WB-ALLOCATION-WELL-FLAG',110,1,'pic_any')
             ]
 
-WBRMKS_04 = [
+WBRMKS_04 = [##this section is performaing as expected.'WB-RMK-TYPE-CODE' seems to always be blank
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-RMK-LNE-CNT',2,3,'pic_numeric'),
             ('WB-RMK-TYPE-CODE',5,1,'pic_any'), ##this field does not seem to be populated often
             ('WB-REMARKS',6,70,'pic_any')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
-WBTUBE_05 = [
+WBTUBE_05 = [##this section is performing as expected QAQC complete
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-SEGMENT-COUNTER ',2,3,'pic_numeric'),
             ('WB-TUBING-INCHES',5,2,'pic_numeric'),
@@ -111,7 +117,7 @@ WBTUBE_05 = [
             ('WB-FR-DENOMINATOR',9,2,'pic_numeric'),
             ('WB-DEPTH-SET',11,5,'pic_numeric'),
             ('WB-PACKER-SET',16,5,'pic_numeric')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
 WBCASE_06 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -129,15 +135,15 @@ WBCASE_06 = [
             ('WB-HOLE-FRAC-DENOM',39,2,'pic_numeric'),
             ('WB-TOP-OF-CEMENT-CASING',42,7,'pic_any'),
             ('WB-AMOUNT-CASING-LEFT',49,5,'pic_numeric')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
-WBPERF_07 = [
+WBPERF_07 = [##Section performing as expected. 'WB-OPEN-HOLE-CODE' may need additional formatting for storage
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-PERF-COUNT',2,3,'pic_numeric'),
             ('WB-FROM-PERF',5,5,'pic_numeric'),
             ('WB-TO-PERF',10,5,'pic_numeric'),
-            ('WB-OPEN-HOLE-CODE',15,2,'pic_any') ##WB-OPEN-HOLE VALUE 'OH'
-            ]
+            ('WB-OPEN-HOLE-CODE',15,2,'pic_any') ##WB-OPEN-HOLE VALUE 'OH', blank if not 'OH' might need to change to 0 and 1 indicator
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
 WBLINE_08 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -148,14 +154,14 @@ WBLINE_08 = [
             ('WB-SACKS-OF-CEMENT',11,5,'pic_numeric'),
             ('WB-TOP-OF-LINER',16,5,'pic_numeric'),
             ('WB-BOTTOM-OF-LINER',21,5,'pic_numeric')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
 WBFORM_09 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-FORMATION-CNTR',2,3,'pic_numeric'),
             ('WB-FORMATION-NAME',5,32,'pic_any'),
             ('WB-FORMATION-DEPTH',37,5,'pic_numeric')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
 WBSQEZE_10 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -163,7 +169,7 @@ WBSQEZE_10 = [
             ('WB-SQUEEZE-UPPER-DEPTH ',5,5,'pic_numeric'),
             ('WB-SQUEEZE-LOWER-DEPTH',10,5,'pic_numeric'),
             ('WB-SQUEEZE-KIND-AMOUNT ',17,50,'pic_any')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
 WBFRESH_11 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -172,7 +178,7 @@ WBFRESH_11 = [
             ('WB-SURFACE-CASING-DETER-CODE',13,1,'pic_any'), #WB-FIELD-RULE-CODE Y or N
             ('WB-UQWP-FROM',14,4,'pic_numeric'),
             ('WB-UQWP-TO',18,4,'pic_numeric')
-            ]
+            ]##should inherit 'WB-FILE-KEY' from "03"
 
 WBOLDLOC_12 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
