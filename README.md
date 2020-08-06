@@ -5,6 +5,8 @@ This is currently in development. This is my first public repository, so I'm sur
 
 The goal is to provide scripts to help download and organize the oil and gas well data provided publicly from the Texas Railroad Commission (TXRRC).
 
+If you are unfamiliar with python, using the notebooks with an .ipynb reader like Jupyter Notebook is a good place to start and test.
+
 The current development is happening in the https://github.com/mlbelobraydi/TXRRC_data_harvest/blob/master/WorkingFileForTesting.py section for those following along.
 
 ## TXRRC Data Source
