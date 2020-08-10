@@ -53,7 +53,7 @@ def pic_numeric(num):
 
     return val
 
-def pic_any(string):
+def pic_any(string): #need to confirm the numberof characters
     STRIP_PIC_X = True # Set this to False if trimming PIC X causes problems.
     val = str(string)
     if STRIP_PIC_X == True:
