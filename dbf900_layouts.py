@@ -11,7 +11,7 @@ Code contains:
         lines 466 through 502
 """
 
-WBROOT_01 = [
+WBROOT_01 = [##layout and formatting look correct
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WELL-BORE-API-ROOT',2,8,'pic_any'), ## Combines WB-API-CNTY and WB-API-UNIQUE
             ('WB-NXT-AVAIL-SUFFIX',10,2,'pic_any'),
@@ -180,7 +180,7 @@ WBFRESH_11 = [
             ('WB-UQWP-TO',18,4,'pic_numeric')
             ]##should inherit 'WB-FILE-KEY' from "03"
 
-WBOLDLOC_12 = [
+WBOLDLOC_12 = [##most wells with this section also have WBNEWLOC_13, but not always, seems to be working
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-LEASE-NAME',2,32,'pic_any'),
             ('WB-SEC-BLK-SURVEY-LOC',34,52,'pic_any'),
@@ -189,9 +189,9 @@ WBOLDLOC_12 = [
             ('WB-WELL-LOC-NEAREST-TOWN',96,13,'pic_any'),
             ('WB-DIST-FROM-SURVEY-LINES',137,28,'pic_any'),
             ('WB-DIST-DIRECT-NEAR-WELL',165,28,'pic_any')
-            ]
+            ]##should inherit API10, many wells do not have this section
 
-WBNEWLOC_13 = [
+WBNEWLOC_13 = [##In testing 16% of wells have no location data, seems to be working
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-LOC-COUNTY',2,3,'pic_numeric'),
             ('WB-ABSTRACT',5,6,'pic_any'),
@@ -210,7 +210,7 @@ WBNEWLOC_13 = [
             ('WB-PLANE-COORDINATE-EAST',159,9,'pic_coord'), ##PIC S9(8)V9(2) TX State plane ft NAD27 DDDDDDDD.DD ISSUE WITH characters at end of each section
             ('WB-PLANE-COORDINATE-NORTH',169,9,'pic_coord'), ##PIC S9(8)V9(2) TX State plane ft NAD27 DDDDDDDD.DD ISSUE WITH characters at end of each section
             ('WB-VERIFICATION-FLAG',177,1,'pic_any') #N = not verified, Y = verified, C = verified change
-            ]
+            ]##should inherit API10, not all wells have this section 250 of first 1500 have no location data
 
 WBPLUG_14 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
@@ -373,9 +373,9 @@ WB14B2_22 = [ ##something wrong with position 25 no decoding ('WB14B2-EXT-CANCEL
 #           ('WB-GAS-RRCID',3,6,'pic_numeric')
 
 
-WBH15_23 = [
+WBH15_23 = [## this section is being decided correctly 
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
-            ('WB-H15-DATE-KEY',2,8,'pic_numeric'), ##Derived by subtracting the mailing date for the H-15 Listing from 999999999
+            ('WB-H15-DATE-KEY',2,8,'pic_numeric'), ##Unique key for section 24, Derived by subtracting the mailing date for the H-15 Listing from 999999999
             ('WB-H15-STATUS',10,1,'pic_any'), ##A=approved C=compliant D=delinquent N=not-approved P=approval-pending W=W3A-extension U=UIC E=no-test-proj-ext X=W1X-denied
             ('WB-H15-OPERATOR',11,6,'pic_numeric'),
             ('WB-H15-NEXT-TEST-DUE-DATE',17,6,'pic_yyyymm'), ##YYYYMM WB-NEXT-TEST-CCYY&MM 
@@ -408,16 +408,16 @@ WBH15_23 = [
             ('WB-H15-MAIL-HOLD-FLAG',136,1,'pic_any'), ##Y=WB-H15-MAIL-HOLD
             ('WB-H15-10YR-INACTIVE-FLAG',137,1,'pic_any'),
             ('WB-H15-W3X-WELL-FLAG',138,1,'pic_any') ##Y=WB-H15-W3X-WELL
-            ]
+            ]##inherits api10 from 01
 
 
-WBH15RMK_24 = [
+WBH15RMK_24 = [##this section is being decoded correctly
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-H15-REMARK-KEY',2,3,'pic_numeric'),
             ('WB-H15-REMARK-TEXT',5,70,'pic_any')
-            ]
+            ]##inherits API from 01 and h15 key from 23. Might work well as json
 
-WBSB126_25 = [
+WBSB126_25 = [##this section is being decoded correctly
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-SB126-DESIGNATION-FLAG',2,1,'pic_any'), ##A=auto-designated M=manual-designated
             ('WB-SB126-DESIG-EFFECTIVE-DATE',3,6,'pic_yyyymm'), ##YYYYMM WB-SB126-DESIG-EFFEC-CC&YY&MM
@@ -427,16 +427,16 @@ WBSB126_25 = [
             ('WB-SB126-CERT-REVOKED-DATE',29,8,'pic_yyyymmdd'), ##YYYYMMDD WB-SB126-CERT-REVOKED-CC&YY&MM&DD
             ('WB-SB126-CERT-DENIAL-DATE',37,8,'pic_yyyymmdd'), ##YYYYMMDD WB-SB126-CERT-DENIAL-CC$YY&MM&DD
             ('WB-SB126-DENIAL-REASON-FLAG',45,1,'pic_any') ##A=denied-auto M=denied-manual
-            ]
+            ]##inherits api10 from 01
 
-WBDASTAT_26 = [
+WBDASTAT_26 = [##this section is being decoded correctly
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WBDASTAT-STAT-NUM',2,7,'pic_numeric'),
             ('WBDASTAT-UNIQ-NUM',9,2,'pic_numeric'),
             ('WBDASTAT-DELETED-FLAG',11,1,'pic_any')
-            ]
+            ]##inherits api10 from 01
 
-WBW3C_27 = [
+WBW3C_27 = [##this section is being decoded correctly
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
             ('WB-W3C-1YR-FLAG',2,1,'pic_any'),
             ('WB-W3C-1YR-FILED-DATE',3,8,'pic_yyyymmdd'), ##YYYYMMDD
@@ -452,7 +452,7 @@ WBW3C_27 = [
             ('WB-W3C-EXTENSION-DATE',56,8,'pic_yyyymmdd'), ##YYYYMMDD Combines WB-W3C-EXTENSION-YEAR&MONTH&DAY
             ('WB-W3C-5YR-FLAG-PREVIOUS',64,1,'pic_any'),
             ('WB-W3C-10YR-FLAG-PREVIOUS',65,1,'pic_any')
-            ]
+            ]##inherits api10 from 01
 
 WB14B2RM_28 = [
             ('RRC-TAPE-RECORD-ID',0,2,'pic_any'),
