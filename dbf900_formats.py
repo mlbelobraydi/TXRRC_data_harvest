@@ -6,6 +6,9 @@ Created on Tue Aug  4 14:03:51 2020
 
 formatting dates, strings, decimals, and numbers
 """
+import edbdic
+from edbdic import array
+
 
 def pic_yyyymmdd(date):
     from datetime import datetime
@@ -61,7 +64,7 @@ def pic_any(string): #need to confirm the numberof characters
 
     return val
 
-def pic_signed(signed, decimal=0):
+def pic_signed(signed, decimal=0): #replacement for pic_latlong and pic_coord
     # Converts an EBCDIC Signed number to Python float
     # 'signed' must be EBCDIC-encoded raw bytes -- this will not work
     # if the data has been converted to ASCII.
