@@ -60,3 +60,20 @@ def pic_any(string): #need to confirm the numberof characters
         val = val.strip()
 
     return val
+
+def pic_signed(signed, decimal=0):
+    # Converts an EBCDIC Signed number to Python float
+    # 'signed' must be EBCDIC-encoded raw bytes -- this will not work
+    # if the data has been converted to ASCII.
+    signed_raw = array('B', signed);
+    val = float(0);
+    
+    # Bytes 1 to n-1 are stored as plain EBCDIC encoded digits
+    for i in signed_raw:
+        val = val * 10 + (i & 0x0F)
+    
+    # If the penultimate nibble == 0xD, then the number is negative. Otherwise,
+    # it is either positive or unsigned.
+    val = (val * (-1 if signed_raw[-1] >> 4 == 0xD else 1)) / 10**decimal
+    
+    return val
