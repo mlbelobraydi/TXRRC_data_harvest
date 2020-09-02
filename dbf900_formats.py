@@ -6,8 +6,8 @@ Created on Tue Aug  4 14:03:51 2020
 
 formatting dates, strings, decimals, and numbers
 """
-import edbdic
-from edbdic import array
+import ebcdic
+from array import array
 
 
 def pic_yyyymmdd(date):
