@@ -6,8 +6,7 @@ Created on Tue Aug  4 14:03:51 2020
 
 formatting dates, strings, decimals, and numbers
 """
-import ebcdic
-from array import array
+
 
 
 def pic_yyyymmdd(date):
@@ -62,21 +61,4 @@ def pic_any(string): #need to confirm the numberof characters
     if STRIP_PIC_X == True:
         val = val.strip()
 
-    return val
-
-def pic_signed(signed, decimal=0): #replacement for pic_latlong and pic_coord
-    # Converts an EBCDIC Signed number to Python float
-    # 'signed' must be EBCDIC-encoded raw bytes -- this will not work
-    # if the data has been converted to ASCII.
-    signed_raw = array('B', signed);
-    val = float(0);
-    
-    # Bytes 1 to n-1 are stored as plain EBCDIC encoded digits
-    for i in signed_raw:
-        val = val * 10 + (i & 0x0F)
-    
-    # If the penultimate nibble == 0xD, then the number is negative. Otherwise,
-    # it is either positive or unsigned.
-    val = (val * (-1 if signed_raw[-1] >> 4 == 0xD else 1)) / 10**decimal
-    
     return val
