@@ -6,7 +6,7 @@ Created on Tue Aug  4 15:41:40 2020
 """
 
 import codecs
-from dbf900_formats import pic_yyyymmdd, pic_yyyymm, pic_latlong, pic_coord, pic_numeric, pic_any
+from dbf900_formats import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_latlong, pic_coord
 
 def decode_file(file, block_size): ##Requires string for the file location and integer for blocksize
     print('opening',file)
@@ -39,6 +39,8 @@ def parse_record(record, layout):
             values[name] = pic_latlong(record[start:start+size], name)
         elif convert == 'pic_coord':
             values[name] = pic_coord(record[start:start+size])
+        # elif convert == 'pic_signed':
+        #     values[name] = pic_signed(record[start:start+size])
         elif convert == 'pic_numeric':
             values[name] = pic_numeric(record[start:start+size])
         else:
