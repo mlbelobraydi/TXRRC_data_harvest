@@ -5,26 +5,7 @@ Created on Tue Aug  4 15:41:40 2020
 @author: MBelobraydic
 """
 
-import codecs
 from dbf900_formats_bytes import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_signed
-
-def decode_file(file, block_size): ##Requires string for the file location and integer for blocksize
-    print('opening',file)
-    with open(file, 'rb') as ebcdicfl: #Reads the .ebc file
-        data = ebcdicfl.read()
-    
-    print('decoding...')
-    ascii_txt = codecs.decode(data, 'cp1140') #decodes the entire .ebc file to ascii
-    ##This decoding method still leaves a few uncoded "/x0" type characters
-    
-    split_records = [] ##empty array for records
-    
-    print('separating records...')
-    for index in range(0, len(ascii_txt), block_size): ##Creates an array for all records in the file
-        split_records.append(ascii_txt[index : index + block_size])    
-    
-    print('returning records...')
-    return split_records
 
 ##From https://github.com/skylerbast/TxRRC_data
 ##Generates the block of bytes from the file.
