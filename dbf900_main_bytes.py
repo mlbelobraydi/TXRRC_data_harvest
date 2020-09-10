@@ -26,12 +26,22 @@ def decode_file(file, block_size): ##Requires string for the file location and i
     print('returning records...')
     return split_records
 
+##From https://github.com/skylerbast/TxRRC_data
+##Generates the block of bytes from the file.
+## Should be added to dbf900_main_bytes when it is working
+def yield_blocks(file, n):
+    block_bytes = file.read(n)
+    while block_bytes:
+        yield block_bytes
+        block_bytes = file.read(n)
+
 
 def parse_record(record, layout):
     values = dict()
 
     for name, start, size, convert in layout:
         
+        ##check for additional data for pic_signed method
         if '_' in str(size): ##check if size also includes the number of decimals "Size_Decimal"
             size_split = size.split('_')
             size = int(size_split[0])
@@ -44,7 +54,7 @@ def parse_record(record, layout):
         elif convert == 'pic_numeric':
             values[name] = pic_numeric(record[start:start+size])
         elif convert == 'pic_signed':
-            values[name] = pic_signed(record[start:start+size],decimal)
+            values[name] = pic_signed(record[start:start+size],name, decimal)
         else:
             values[name] = pic_any(record[start:start+size])
 
