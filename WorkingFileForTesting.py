@@ -7,25 +7,25 @@ Created on Tue Aug  4 14:27:23 2020
 import sys
 import pandas as pd
 import json
-from dbf900_main import decode_file, parse_record
-from dbf900_layouts import dbf900_layout
-from dbf900_formats import pic_yyyymmdd, pic_yyyymm, pic_latlong, pic_coord, pic_numeric, pic_any
+from dbf900_main_bytes import yield_blocks, parse_record
+from dbf900_layouts_bytes import dbf900_layout
+from dbf900_formats_bytes import pic_yyyymmdd, pic_numeric, pic_any
 
 
 
 
 def main():
-    file = r'C:\PublicData\Texas\TXRRC\index\dbf900.ebc' ##Local storage location
+    file_path = r'C:\PublicData\Texas\TXRRC\index\dbf900.ebc' ##Local storage location
     ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
     
     block_size  = 247 ##block size for each record in the file
     ##Unknown if this holds true for all versions of this file or for other files on TXRRC
     
-    ##file and block size sent to decode and return record array    
-    split_records = decode_file(file,block_size)
-    ##the records in this array have a leading two character code to
-    ##know how it should be split apart and treated.    
+    print('opening',file_path,'...')
+    file = open(file_path, 'rb') ##Opens the .ebc file and reads it as bytes
     
+    ##Use limiting counter for testing formatting
+    Limiting_Counter = True
     
     """
     ##Section for testing the outputs
@@ -33,8 +33,7 @@ def main():
     API = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
     ct = 0 ##counter for number of records
     wellct = 0 ##counter for number of wells
-    check = 0 ##while loop counter based on script
-    check_stop = 500 ##number of while loop runs to complete before stopping
+    check_stop = 50 ##number of loop runs to complete before stopping
     
     
     """
@@ -70,27 +69,25 @@ def main():
     wbw3c_df = pd.DataFrame() ##27 Recurring linked to 01
     wb14b2rm_df = pd.DataFrame() ##28 Recurring JSON best linked to 22
     
+
     
-    sample_records = split_records #[34000:65000] ## Used for testing to reduce number of records to run
-    total_records = len(sample_records) ##modify if sample_records isn't used
+    """Loop section for all records or partial set"""
+       
+    for block in yield_blocks(file, block_size): ##for each block in file
     
-    """Loop section for all records or partial set
-       Select method based on goals and what is being tested"""
-    ##for record in split_records: ##full file run
-    ##for record in sample_records: ##if using sample records to limit run
-    ##while check < check_stop: ##if using while loop to limit run
-    while wellct < check_stop:  ##while look for first XX number of wells
-    
-        record = sample_records[ct] ##not necessary for for-loops
+        ##For testing script
+        if Limiting_Counter == True and wellct > check_stop: ##Stops the loop once a set number of wells has been complete
+            break
         
-        startval = str(record[0:2])
+    
+        startval = pic_any(block[0:2]) ## first two characters of a block
         
         """
         Holding unique key values for the current record structure. 
         Reset when new record "01" is found.
         """        
         if startval == '01': ##captures the API number for databasing
-            API = '42'+record[2:10] ##42 is the state code for Texas + the county and unique api number
+            API = API = '42'+ pic_any(block[2:10]) ##api value in records '01'
             wellct+=1
             ##Might be helpful to find the next occurance of a record staring with "01"
             ##This way all the associated items are added to the right sections with a check of completion
@@ -106,142 +103,173 @@ def main():
             h15_key = None ## defined in '23' cleared upon new API
         
         if startval == '02': ##captures wbcplkey unique key for databasing
-            wbcplkey = str(record[2:15]).strip() ##key for 03 ->04 05 06 07 08 09 10 11  ##similar to wbplugkey and wbplugkey
-            fluid_code_02 = str(record[2]) 
+            wbcplkey = pic_any(block[2:15]) ##key for 03 ->04 05 06 07 08 09 10 11  ##similar to wbplugkey and wbplugkey
+            fluid_code_02 = pic_any(block[2:3]) 
+            
             
         if startval == '03': ##captures wbfilekey unique key for databasing
-            wbfilekey = int(record[2:10]) ##key for 04 05 06 07 08 09 10 11
+            wbfilekey = pic_numeric(block[2:10]) ##key for 04 05 06 07 08 09 10 11
         
         if startval == '14': ##captures wbfiledt unique key for databasing
-            wbfiledt = pic_yyyymmdd(record[2:10]) ##key for 15 16 17 18 19
-            wbplugkey = str(record[177:190]).strip() ##similar to wbcplkey and wb14b2ky
-            fluid_code_14 = str(record[177]) ##Unknown if this needs to be captured since it is simlar to fluid_code in 02
+            wbfiledt = pic_yyyymmdd(block[2:10]) ##key for 15 16 17 18 19
+            wbplugkey = pic_any(block[177:190]).strip() ##similar to wbcplkey and wb14b2ky
+            fluid_code_14 = pic_any(block[177:178]) ##Unknown if this needs to be captured since it is simlar to fluid_code in 02
         
         if startval == '20': ##captures wbpmtnum unique key for databasing
-            wbpmtnum = int(record[2:7]) ##key for 21 
+            wbpmtnum = pic_any(block[2:7]) ##key for 21 
             
         if startval == '22': ##captures wb14b2ky  unique key for databasing
-            wb14b2ky = str(record[2:15]).strip() ##key for 28  ##similar to wbcplkey and wbplugkey
-            fluid_code_22 = str(record[2]) ##Unknown if this needs to be captured since it is simlar to fluid_code in 02
+            wb14b2ky = pic_any(block[2:15]).strip() ##key for 28  ##similar to wbcplkey and wbplugkey
+            fluid_code_22 = pic_any(block[2:3]) ##Unknown if this needs to be captured since it is simlar to fluid_code in 02
             
         if startval == '23':
-            h15_key = int(record[2:10]) ##key for 24 WB-H15-DATE-KEY Derived by subtracting the mailing date for the H-15 Listing from 999999999.  This provides us with a date key
+            h15_key = pic_numeric(block[2:10]) ##key for 24 WB-H15-DATE-KEY Derived by subtracting the mailing date for the H-15 Listing from 999999999.  This provides us with a date key
         
         """
         Selecting layout based on leading startval
         and parsing record based on the selected layout
         """
         layout = dbf900_layout(startval)['layout'] ##identifies layout based on record start values
-        parsed_vals = parse_record(record, layout) ##formats the record and returns a formated {dict} 
+        parsed_vals = parse_record(block, layout) ##formats the record and returns a formated {dict} 
 
-
+        temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
+        temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+        
         """Dataframe loading and correcting (as necessary)"""
-        if startval =='01': ##currently reviewing results vs. original record.
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+        if startval =='01': ##
             wbroot_df = wbroot_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='02':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+            ##add unique keys
             temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
             ## break up 'WB-OIL-GAS-INFO' based on fluid_code_02 'o' vs 'g'
             wbcompl_df = wbcompl_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='03':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+            ##add unique keys
             temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
             temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
             wbdate_df = wbdate_df.append(temp_df, ignore_index=True) ##appends results to dataframe
-        # elif startval =='04':
-            
-        # elif startval =='05':
-            
-        # elif startval =='06':
-            
-        # elif startval =='07':
-            
-        # elif startval =='08':
-            
-        # elif startval =='09':
-            
-        # elif startval =='10':
-            
-        # elif startval =='11':
-            
+        
+        elif startval =='04': ###temporary
+            """Should be appended to 03 by JSON"""
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbrmks_df = wbrmks_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        
+        elif startval =='05':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbtube_df = wbtube_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='06':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbcase_df = wbcase_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='07':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbperf_df = wbperf_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='08':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbline_df = wbline_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='09':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbform_df = wbform_df.append(temp_df, ignore_index=True) ##appends results to dataframe  
+        elif startval =='10':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbsqeze_df = wbsqeze_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='11':
+            ##add unique keys
+            temp_df['wbcplkey'] = wbcplkey ##adds wbcplkey to record for link to 03 04 05 06 07 08 09 10 11
+            temp_df['wbfilekey'] = wbfilekey ##adds wbfilekey to record for link to 04 05 06 07 08 09 10 11
+            wbfresh_df = wbfresh_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        
         elif startval =='12':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
             wboldloc_df = wboldloc_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='13':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
             wbnewloc_df = wbnewloc_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        
         elif startval =='14':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+            ##add unique keys
             temp_df['wbfiledt'] = wbfiledt ##adds wbfiledt to record for 15 16 17 18 19
             temp_df['wbplugkey'] = wbplugkey ##adds wbplugkey to record for 15 16 17 18 19
             ## break up 'WB-OIL-GAS-INFO' based on fluid_code_14 'o' vs 'g'
             wbplug_df = wbplug_df.append(temp_df, ignore_index=True) ##appends results to dataframe
-        # elif startval =='15':
-            
-        # elif startval =='16':
-            
-        # elif startval =='17':
-            
-        # elif startval =='18':
-            
-        # elif startval =='19':
-            
-        # elif startval =='20':
-            
-        # elif startval =='21':
-            
-        # elif startval =='22':
-            
-        #     ## break up 'WB-OIL-GAS-INFO' based on fluid_code_22 'o' vs 'g'
-            
+        elif startval =='15':
+             ##add unique keys
+            temp_df['wbfiledt'] = wbfiledt ##adds wbfiledt to record for 15 16 17 18 19
+            temp_df['wbplugkey'] = wbplugkey ##adds wbplugkey to record for 15 16 17 18 19
+            wbplrmks_df = wbplrmks_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='16':
+             ##add unique keys
+            temp_df['wbfiledt'] = wbfiledt ##adds wbfiledt to record for 15 16 17 18 19
+            temp_df['wbplugkey'] = wbplugkey ##adds wbplugkey to record for 15 16 17 18 19
+            wbplrec_df = wbplrec_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='17':
+            ##add unique keys
+            temp_df['wbfiledt'] = wbfiledt ##adds wbfiledt to record for 15 16 17 18 19
+            temp_df['wbplugkey'] = wbplugkey ##adds wbplugkey to record for 15 16 17 18 19
+            wbplcase_df = wbplcase_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='18':
+             ##add unique keys
+            temp_df['wbfiledt'] = wbfiledt ##adds wbfiledt to record for 15 16 17 18 19
+            temp_df['wbplugkey'] = wbplugkey ##adds wbplugkey to record for 15 16 17 18 19
+            wbplperf_df = wbplperf_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='19':
+             ##add unique keys
+            temp_df['wbfiledt'] = wbfiledt ##adds wbfiledt to record for 15 16 17 18 19
+            temp_df['wbplugkey'] = wbplugkey ##adds wbplugkey to record for 15 16 17 18 19
+            wbplname_df = wbplname_df.append(temp_df, ignore_index=True) ##appends results to dataframe      
+        
+        elif startval =='20':
+            ##add unique keys
+            temp_df['wbpmtnum'] = wbpmtnum ##adds unique wbpmtnum key for record 21
+            wbdrill_df = wbdrill_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='21':
+            ##add unique keys
+            temp_df['wbpmtnum'] = wbpmtnum ##adds unique wbpmtnum key from record 20
+            wbwellid_df = wbwellid_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+        elif startval =='22':
+            ##add unique keys
+            temp_df['wb14b2ky'] = wb14b2ky ##adds wb14b2ky unique key to record
+            ## break up 'WB-OIL-GAS-INFO' based on fluid_code_22 'o' vs 'g'
+            wb14b2_df = wb14b2_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='23':
             """each record needs to get the associated 24 remarks in json"""
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+            ##add unique keys
+            temp_df['h15_key'] = h15_key ##adds h15_key to record 
             wbh15_df = wbh15_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         
-        elif startval =='24':
+        elif startval =='24':###temporary
             ##this section should be json and added to the remark field in the correct row for wb15_df 
             ##need to combine multiple 24 records into single json entry for 23
             ##how to trigger entry?
-            #check+=1 ##used for while loops to manage run length this location counts for each well
+            ##add unique keys
             """using dataframe for testing, needs to be json and can be multiple remarks for single 23 record"""
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
             temp_df['h15_key'] = h15_key ##adds the h15_key from previous 23 record
             wbh15rmk_df = wbh15rmk_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         
         elif startval =='25':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
             wbsb126_df = wbsb126_df.append(temp_df, ignore_index=True) ##appends results to dataframe
-        elif startval =='26':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+        elif startval =='26':            
             wbdastat_df = wbdastat_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='27':
-            #check+=1 ##used for while loops to manage run length this location counts for each well
-            temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-            temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
             wbw3c_df = wbw3c_df.append(temp_df, ignore_index=True) ##appends results to dataframe
-        # elif startval =='28':
             
+        elif startval =='28':###temporary
+            """These remarks should be stored as JSON in associated '22' record."""
+            ##how to trigger entry?
+            ##add unique keys
+            temp_df['wb14b2ky'] = wb14b2ky ##unique key from 22
+            wb14b2rm_df = wb14b2rm_df.append(temp_df, ignore_index=True) ##appends results to dataframe
             
         ct+=1 ## count for number of records being reviewed by script
         
@@ -249,8 +277,7 @@ def main():
         ##the counter isn't necessary, but it helps to determine if it is still running.
         use_counter = True
         if use_counter:
-            status = round((ct/total_records)*100,3)
-            sys.stdout.write("\r record:{0} complete:{1}% well#:{2}".format(ct,status,wellct))
+            sys.stdout.write("\r record:{0} well#:{1}".format(ct,wellct))
             sys.stdout.flush()
         
     
@@ -265,13 +292,33 @@ def main():
     wbroot_df.to_csv(base_path+'01_wbroot'+path_ext, index=False) ##01
     wbcompl_df.to_csv(base_path+'02_wbcompl'+path_ext, index=False) ##02 
     wbdate_df.to_csv(base_path+'03_wbdate'+path_ext, index=False) ##03
-        ##04 05 06 07 08 09 10 11
+    
+    ##04 is temporary here and will need to be handeled differently
+    wbrmks_df.to_csv(base_path+'04_wbrmks'+path_ext, index=False) ##04 
+    
+    wbtube_df.to_csv(base_path+'05_wbtube'+path_ext, index=False) ##05 
+    wbcase_df.to_csv(base_path+'06_wbcase'+path_ext, index=False) ##06
+    wbperf_df.to_csv(base_path+'07_wbperf'+path_ext, index=False) ##07
+    wbline_df.to_csv(base_path+'08_wbline'+path_ext, index=False) ##08
+    wbform_df.to_csv(base_path+'09_wbform'+path_ext, index=False) ##09
+    wbsqeze_df.to_csv(base_path+'10_wbsqeze'+path_ext, index=False) ##10
+    wbfresh_df.to_csv(base_path+'11_wbfresh'+path_ext, index=False) ##11
+
     wboldloc_df.to_csv(base_path+'12_wboldloc'+path_ext, index=False) ##12
     wbnewloc_df.to_csv(base_path+'13_wbnewloc'+path_ext, index=False) ##13
     wbplug_df.to_csv(base_path+'14_wbplug'+path_ext, index=False) ##14
-        ##15 16 17 18 19
-    ##20 ->21
-    ##22 ->28
+    
+    ##15 is temporary here and will need to be handeled differently
+    wbplrmks_df.to_csv(base_path+'15_wbplrmks'+path_ext, index=False) ##15
+    
+    wbplrec_df.to_csv(base_path+'16_wbplrec'+path_ext, index=False) ##16
+    wbplcase_df.to_csv(base_path+'17_wbplcase'+path_ext, index=False) ##17
+    wbplperf_df.to_csv(base_path+'18_wbplperf'+path_ext, index=False) ##18
+    wbplname_df.to_csv(base_path+'19_wbplname'+path_ext, index=False) ##19
+    
+    wbdrill_df.to_csv(base_path+'20_wbdrill'+path_ext, index=False) ##20
+    wbwellid_df.to_csv(base_path+'21_wbwellid'+path_ext, index=False) ##21
+    wb14b2_df.to_csv(base_path+'22_wb14b2'+path_ext, index=False) ##22
     wbh15_df.to_csv(base_path+'23_wbh15'+path_ext, index=False) ##23
     
     ##24 is temporary here and will need to be handeled differently
@@ -281,6 +328,10 @@ def main():
     wbdastat_df.to_csv(base_path+'26_wbdastat'+path_ext, index=False) ##26
     wbw3c_df.to_csv(base_path+'27_wbw3c'+path_ext, index=False) ##27
     
+    ##28 is temporary here and will need to be handeled differently
+    wb14b2rm_df.to_csv(base_path+'28_wb14b2rm'+path_ext, index=False) ##28
+    
+    file.close()
     
 if __name__ == '__main__': 
     main()
