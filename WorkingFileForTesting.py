@@ -33,7 +33,7 @@ def main():
     API = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
     ct = 0 ##counter for number of records
     wellct = 0 ##counter for number of wells
-    check_stop = 50 ##number of loop runs to complete before stopping
+    check_stop = 1000 ##number of loop runs to complete before stopping
     
     
     """
@@ -116,7 +116,7 @@ def main():
             fluid_code_14 = pic_any(block[177:178]) ##Unknown if this needs to be captured since it is simlar to fluid_code in 02
         
         if startval == '20': ##captures wbpmtnum unique key for databasing
-            wbpmtnum = pic_any(block[2:7]) ##key for 21 
+            wbpmtnum = pic_any(block[2:8]) ##key for 21 
             
         if startval == '22': ##captures wb14b2ky  unique key for databasing
             wb14b2ky = pic_any(block[2:15]).strip() ##key for 28  ##similar to wbcplkey and wbplugkey
