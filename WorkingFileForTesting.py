@@ -4,6 +4,7 @@ Created on Tue Aug  4 14:27:23 2020
 
 @author: MBelobraydic
 """
+import argparse
 import sys
 import pandas as pd
 import json
@@ -15,8 +16,14 @@ from dbf900_formats_bytes import pic_yyyymmdd, pic_numeric, pic_any
 
 
 def main():
-    file_path = r'C:\PublicData\Texas\TXRRC\index\dbf900.ebc' ##Local storage location
-    ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
+    args = get_parser().parse_args(sys.argv[1:])
+    if args.filepath:
+        # python WorkingFileForTesting.py --filepath data/dbf900.ebc
+        file_path = args.filepath
+    else:
+        file_path = r'C:\PublicData\Texas\TXRRC\index\dbf900.ebc' ##Local storage location
+        ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
+        ##file size: 1.96MB-ish
     
     block_size  = 247 ##block size for each record in the file
     ##Unknown if this holds true for all versions of this file or for other files on TXRRC
@@ -332,6 +339,14 @@ def main():
     wb14b2rm_df.to_csv(base_path+'28_wb14b2rm'+path_ext, index=False) ##28
     
     file.close()
+
+def get_parser():
+    parser = argparse.ArgumentParser('Data file for parsing',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument( '--filepath', required=False,
+    )
+    return parser
     
 if __name__ == '__main__': 
     main()
