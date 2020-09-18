@@ -40,7 +40,7 @@ def main():
     API = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
     ct = 0 ##counter for number of records
     wellct = 0 ##counter for number of wells
-    check_stop = 1000 ##number of loop runs to complete before stopping
+    check_stop = 100 ##number of loop runs to complete before stopping
     
     
     """
@@ -74,7 +74,7 @@ def main():
     wbsb126_df = pd.DataFrame() ##25 Recurring linked to 01
     wbdastat_df = pd.DataFrame() ##26 Recurring linked to 01
     wbw3c_df = pd.DataFrame() ##27 Recurring linked to 01
-    wb14b2rm_df = pd.DataFrame() ##28 Recurring JSON best linked to 22
+    ## now linked to 22 wb14b2rm_df = pd.DataFrame() ##28 Recurring JSON best linked to 22
     
 
     
@@ -247,6 +247,7 @@ def main():
         elif startval =='22':
             ##add unique keys
             temp_df['wb14b2ky'] = wb14b2ky ##adds wb14b2ky unique key to record
+            temp_df['wb14b2rm'] = None
             ## break up 'WB-OIL-GAS-INFO' based on fluid_code_22 'o' vs 'g'
             wb14b2_df = wb14b2_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='23':
@@ -272,11 +273,23 @@ def main():
             wbw3c_df = wbw3c_df.append(temp_df, ignore_index=True) ##appends results to dataframe
             
         elif startval =='28':###temporary
-            """These remarks should be stored as JSON in associated '22' record."""
-            ##how to trigger entry?
             ##add unique keys
             temp_df['wb14b2ky'] = wb14b2ky ##unique key from 22
-            wb14b2rm_df = wb14b2rm_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+            
+            """ grabs exising 28 JSON field in 22 wb14b2_df ## None if first """
+            wb14b2rm_json_28 = wb14b2_df.loc[(wb14b2_df['api10'] == API) & (wb14b2_df['wb14b2ky'] == wb14b2ky), ['wb14b2rm']].values[0][0]
+            
+            """ Adds JSON record of 28 to any previous values """
+            if wb14b2rm_json_28: ## verifies if the value is not null
+                wb14b2rm_json_28 = json.dumps(json.loads(wb14b2rm_json_28) + temp_df.to_json(orient="records"))
+            else: ## if null (for first 28 record for a given 22 record)
+                wb14b2rm_json_28 = json.dumps(temp_df.to_json(orient="records"))
+            
+            """writes record back to the correct position in 22 wb14b2_df """
+            wb14b2_df.loc[(wb14b2_df['api10'] == API) & (wb14b2_df['wb14b2ky'] == wb14b2ky), ['wb14b2rm']] = wb14b2rm_json_28
+            
+            ## previous version 28 to seperate dataframe <delete when above works correctly>
+            ## wb14b2rm_df = wb14b2rm_df.append(temp_df, ignore_index=True) ##appends results to dataframe
             
         ct+=1 ## count for number of records being reviewed by script
         
@@ -335,8 +348,8 @@ def main():
     wbdastat_df.to_csv(base_path+'26_wbdastat'+path_ext, index=False) ##26
     wbw3c_df.to_csv(base_path+'27_wbw3c'+path_ext, index=False) ##27
     
-    ##28 is temporary here and will need to be handeled differently
-    wb14b2rm_df.to_csv(base_path+'28_wb14b2rm'+path_ext, index=False) ##28
+    ##28 is commented out since the code now combines 28 into 22
+    ##wb14b2rm_df.to_csv(base_path+'28_wb14b2rm'+path_ext, index=False) ##28
     
     file.close()
 
