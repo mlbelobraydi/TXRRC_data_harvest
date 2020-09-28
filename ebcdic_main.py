@@ -5,7 +5,7 @@ Created on Tue Aug  4 15:41:40 2020
 @author: MBelobraydic
 """
 
-from dbf900_formats_bytes import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_signed
+from ebcdic_formats import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_signed, comp3
 
 ##From https://github.com/skylerbast/TxRRC_data
 ##Generates the block of bytes from the file.
@@ -36,6 +36,8 @@ def parse_record(record, layout):
             values[name] = pic_numeric(record[start:start+size])
         elif convert == 'pic_signed':
             values[name] = pic_signed(record[start:start+size],name, decimal)
+        elif convert == 'pic_comp':
+            values[name] = comp3(record[start:start+size], decimal)
         else:
             values[name] = pic_any(record[start:start+size])
 

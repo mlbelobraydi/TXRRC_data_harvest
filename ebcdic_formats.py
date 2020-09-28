@@ -80,3 +80,38 @@ def pic_signed(signed,name,decimal=0): #replacement for pic_latlong and pic_coor
         val = -val
     
     return val
+
+
+
+
+def comp3(packed, decimal_location=0):
+    ##From: https://github.com/skylerbast/TxRRC_data/blob/master/cobol_types.py
+    ## For more see: http://3480-3590-data-conversion.com/article-packed-fields.html
+    # Function unpacks a COMP-3 number with number of digits n
+    # Also optionally allows for conversion to float, which is specificed by PICture,
+    # rather than in the data itself
+    bin_arr = array('B', packed)
+    val = float(0)
+    
+    # For nibbles 1 to n - 1
+    # First digit in nibble is found by performing bitwise and with 0xf0, shifting 
+    # right by 4 bits, and then multiplying the integer result by 10. The second 
+    # digit in the nibble is found by performing a bitwise and with 0xf. These are
+    # added together, and added to the existing (more significant) digits
+    for i in bin_arr[:-1]:
+      val = (val * 100) + (((i & 0xf0) >> 4) * 10) + (i & 0xf) 
+    
+    # For nibble n, only the first four bits represent a digit; the last 4 bits of 
+    # nibble n represent the sign of the number
+    i = bin_arr[-1]
+    val = (val * 10) + ((i & 0xf0) >> 4)
+    if (i & 0xf) == 0xd:
+      val = -val
+    
+    # If we've been told how many decimals there are, leave the result float and 
+    # put the decimal in the proper place; otherwise make it an integer 
+    val = val / (10 ** decimal_location)
+    if decimal_location == 0:
+      val = int(val)
+    
+    return val
