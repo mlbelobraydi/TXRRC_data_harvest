@@ -5,7 +5,7 @@ Created on Tue Aug  4 15:41:40 2020
 @author: MBelobraydic
 """
 
-from dbf900_formats_bytes import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_signed, comp3
+from ebcdic_formats import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_signed, comp3
 
 ##From https://github.com/skylerbast/TxRRC_data
 ##Generates the block of bytes from the file.
