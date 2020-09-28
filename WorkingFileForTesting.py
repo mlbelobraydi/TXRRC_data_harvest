@@ -9,7 +9,7 @@ import sys
 import pandas as pd
 import json
 from dbf900_main_bytes import yield_blocks, parse_record
-from dbf900_layouts_bytes import dbf900_layout
+from layouts_wells_dbf900 import dbf900_layout
 from dbf900_formats_bytes import pic_yyyymmdd, pic_numeric, pic_any
 
 
