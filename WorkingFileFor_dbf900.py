@@ -8,7 +8,7 @@ import argparse
 import sys
 import pandas as pd
 import json
-from dbf900_main_bytes import yield_blocks, parse_record
+from ebcdic_main import yield_blocks, parse_record
 from layouts_wells_dbf900 import dbf900_layout
 from ebcdic_formats import pic_yyyymmdd, pic_numeric, pic_any
 
