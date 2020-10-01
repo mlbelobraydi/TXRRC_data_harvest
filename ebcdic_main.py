@@ -21,8 +21,8 @@ def parse_record(record, layout):
     values = dict()
 
     for name, start, size, convert in layout:
-        
-        ##check for additional data for pic_signed method
+        decimal = 0
+        ##check for additional data for pic_signed and comp 3 methods
         if '_' in str(size): ##check if size also includes the number of decimals "Size_Decimal"
             size_split = size.split('_')
             size = int(size_split[0])
