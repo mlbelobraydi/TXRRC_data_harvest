@@ -5,6 +5,7 @@ Created on Tue Aug  4 14:27:23 2020
 @author: MBelobraydic
 """
 import argparse
+import os
 import sys
 import pandas as pd
 import json
@@ -14,16 +15,9 @@ from ebcdic_formats import pic_yyyymmdd, pic_numeric, pic_any
 
 
 
-
 def main():
-    args = get_parser().parse_args(sys.argv[1:])
-    if args.filepath:
-        # python WorkingFileForTesting.py --filepath data/dbf900.ebc
-        file_path = args.filepath
-    else:
-        file_path = r'C:\PublicData\Texas\TXRRC\index\dbf900.ebc' ##Local storage location
-        ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
-        ##file size: 1.96MB-ish
+    file_path, out_dir = parse_args()
+
     
     block_size  = 247 ##block size for each record in the file
     ##Unknown if this holds true for all versions of this file or for other files on TXRRC
@@ -306,7 +300,9 @@ def main():
     ##Currently writing to CSV
     ##  Could be changed to XLS or written to SQL
     ##  Need to determine how all the different sections link prior to decision
-    base_path = r'C:\PublicData\Texas\TXRRC\database\dbf900_' ##for local storage
+
+    ##for local storage
+    base_path = out_dir + os.sep + r'dbf900'
     path_ext = r'.csv'
     
     wbroot_df.to_csv(base_path+'01_wbroot'+path_ext, index=False) ##01
@@ -353,13 +349,51 @@ def main():
     
     file.close()
 
-def get_parser():
-    parser = argparse.ArgumentParser('Data file for parsing',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument( '--filepath', required=False,
+def get_parser():
+    desc = "Process oil and gas well data from the Texas Railroad Commission"
+    parser = argparse.ArgumentParser(
+        description=desc,
+    )
+
+    parser.add_argument("--filepath", required=False, help="path to source data file")
+    parser.add_argument(
+        "--outdir", required=False, help="directory path to write the processed data"
     )
     return parser
+
+
+def parse_args():
+    parser = get_parser()
+    args = parser.parse_args(sys.argv[1:])
+    if args.filepath:
+        # python WorkingFileForTesting.py --filepath data/dbf900.ebc
+        file_path = args.filepath
+    else:
+        ## Default input data source
+        file_path = r"C:\PublicData\Texas\TXRRC\index\dbf900.ebc"
+        ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
+        ##file size: 1.96MB-ish
+
+    if not os.path.isfile(file_path):
+        print("File Error: {} is not a file\n".format(file_path))
+        parser.print_help(sys.stderr)
+        parser.exit(1)
+
+    if args.outdir:
+        # python WorkingFileForTesting.py --outdir C:\mydatabase
+        out_dir = args.outdir
+    else:
+        ## Default local storage location
+        out_dir = r"C:\PublicData\Texas\TXRRC\database"
+
+    if not os.path.isdir(out_dir):
+        print("Directory Error: {} is not a directory\n".format(out_dir))
+        parser.print_help(sys.stderr)
+        parser.exit(1)
+
+    return file_path, out_dir
+
     
 if __name__ == '__main__': 
     main()
