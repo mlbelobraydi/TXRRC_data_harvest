@@ -259,10 +259,10 @@ OIL_WELL_05 = [
 
 def oilProd_layout(startval):
     layouts_map = {
-                    '01' : {'name': 'OIL_FIELD', 'layout': OIL_FIELD_01},
-                    '03' : {'name': 'OIL_LEASE', 'layout': OIL_LEASE_03},
-                    '04' : {'name': 'OIL_MULTI_WELL', 'layout': OIL_MULTI_WELL_04},
-                    '05' : {'name': 'OIL_WELL', 'layout': OIL_WELL_05},
+                    '1' : {'name': 'OIL_FIELD', 'layout': OIL_FIELD_01},
+                    '3' : {'name': 'OIL_LEASE', 'layout': OIL_LEASE_03},
+                    '4' : {'name': 'OIL_MULTI_WELL', 'layout': OIL_MULTI_WELL_04},
+                    '5' : {'name': 'OIL_WELL', 'layout': OIL_WELL_05},
                   }
     try:
         returnval = layouts_map[startval]

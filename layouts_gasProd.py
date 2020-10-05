@@ -195,10 +195,10 @@ GAS_WELL_05 =  [
 
 
 
-def gsf_layout(startval):
+def gasProd_layout(startval):
     layouts_map = {
-                    '01' : {'name': 'GAS_FIELD_01', 'layout': GAS_FIELD_01},
-                    '05' : {'name': 'GAS_WELL_05', 'layout': GAS_WELL_05},
+                    '1' : {'name': 'GAS_FIELD_01', 'layout': GAS_FIELD_01},
+                    '5' : {'name': 'GAS_WELL_05', 'layout': GAS_WELL_05},
                   }
     try:
         returnval = layouts_map[startval]
