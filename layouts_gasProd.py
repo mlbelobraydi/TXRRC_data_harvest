@@ -195,7 +195,7 @@ GAS_WELL_05 =  [
 
 
 
-def gaslProd_layout(startval):
+def gasProd_layout(startval):
     layouts_map = {
                     '1' : {'name': 'GAS_FIELD_01', 'layout': GAS_FIELD_01},
                     '5' : {'name': 'GAS_WELL_05', 'layout': GAS_WELL_05},
