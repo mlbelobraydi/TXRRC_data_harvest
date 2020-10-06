@@ -64,7 +64,7 @@ def main():
     wbwellid_df = pd.DataFrame() ##21 Recurring linked to 20
     wb14b2_df = pd.DataFrame() ##22 Recurring linked to 01
     wbh15_df = pd.DataFrame() ##23 Recurring linked to 01
-    wbh15rmk_df = pd.DataFrame() ##24 Recurring JSON best linked to 23
+    ## now linked to 23 wbh15rmk_df = pd.DataFrame() ##24 Recurring JSON best linked to 23
     wbsb126_df = pd.DataFrame() ##25 Recurring linked to 01
     wbdastat_df = pd.DataFrame() ##26 Recurring linked to 01
     wbw3c_df = pd.DataFrame() ##27 Recurring linked to 01
@@ -241,23 +241,33 @@ def main():
         elif startval =='22':
             ##add unique keys
             temp_df['wb14b2ky'] = wb14b2ky ##adds wb14b2ky unique key to record
-            temp_df['wb14b2rm'] = None
+            temp_df['wb14b2rm'] = None ## To be used for any following 28 sections
             ## break up 'WB-OIL-GAS-INFO' based on fluid_code_22 'o' vs 'g'
             wb14b2_df = wb14b2_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         elif startval =='23':
-            """each record needs to get the associated 24 remarks in json"""
             ##add unique keys
             temp_df['h15_key'] = h15_key ##adds h15_key to record 
+            temp_df['h15_remark'] = None ## To be used for any following 24 sections
             wbh15_df = wbh15_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         
-        elif startval =='24':###temporary
-            ##this section should be json and added to the remark field in the correct row for wb15_df 
-            ##need to combine multiple 24 records into single json entry for 23
-            ##how to trigger entry?
+        elif startval =='24':###Loads any section 24 as JSON in associated 23
             ##add unique keys
-            """using dataframe for testing, needs to be json and can be multiple remarks for single 23 record"""
             temp_df['h15_key'] = h15_key ##adds the h15_key from previous 23 record
-            wbh15rmk_df = wbh15rmk_df.append(temp_df, ignore_index=True) ##appends results to dataframe
+            
+            """grab existing 24 JSON 'h15_remark' field from current section 23 ##None if first"""
+            wbh15rmk_json_24 = wbh15_df.loc[(wbh15_df['api10'] == API) & (wbh15_df['h15_key'] == h15_key), ['h15_remark']].values[0][0]
+            
+            """ Adds JSON record of 24 to any previous values """
+            if wbh15rmk_json_24: ## verifies if the value is not null
+                wbh15rmk_json_24 = json.dumps(json.loads(wbh15rmk_json_24) + temp_df.to_json(orient="records"))
+            else: ## if null (for first 24 record for a given 23 record)
+                wbh15rmk_json_24 = json.dumps(temp_df.to_json(orient="records"))
+            
+            """writes record back to the correct position in 23 wbh15_df """
+            wbh15_df.loc[(wbh15_df['api10'] == API) & (wbh15_df['h15_key'] == h15_key), ['h15_remark']] = wbh15rmk_json_24
+            
+            ## Previous version had section 24 output as its own dataframe <to be deleted if all tests ok in new JSON version>
+            ##wbh15rmk_df = wbh15rmk_df.append(temp_df, ignore_index=True) ##appends results to dataframe
         
         elif startval =='25':
             wbsb126_df = wbsb126_df.append(temp_df, ignore_index=True) ##appends results to dataframe
@@ -266,7 +276,7 @@ def main():
         elif startval =='27':
             wbw3c_df = wbw3c_df.append(temp_df, ignore_index=True) ##appends results to dataframe
             
-        elif startval =='28':###temporary
+        elif startval =='28':### Loads section 28 as JSON into associated 22
             ##add unique keys
             temp_df['wb14b2ky'] = wb14b2ky ##unique key from 22
             
@@ -337,8 +347,8 @@ def main():
     wb14b2_df.to_csv(base_path+'22_wb14b2'+path_ext, index=False) ##22
     wbh15_df.to_csv(base_path+'23_wbh15'+path_ext, index=False) ##23
     
-    ##24 is temporary here and will need to be handeled differently
-    wbh15rmk_df.to_csv(base_path+'24_wbh15rmk'+path_ext, index=False) ##24
+    ##24 is commented out since the code now combines 24 into 23
+    ##wbh15rmk_df.to_csv(base_path+'24_wbh15rmk'+path_ext, index=False) ##24
     
     wbsb126_df.to_csv(base_path+'25_wbsb126'+path_ext, index=False) ##25
     wbdastat_df.to_csv(base_path+'26_wbdastat'+path_ext, index=False) ##26
