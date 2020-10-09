@@ -12,9 +12,14 @@ The goal is to provide scripts to help download and organize the oil and gas wel
 
 ## Getting started
 
-If you are unfamiliar with python, using the notebooks with an .ipynb reader like Jupyter Notebook is a good place to start and test.
+If you are unfamiliar with python, using the notebooks with an .ipynb reader like Jupyter Notebook is a good place to start and test:<br>
+https://github.com/mlbelobraydi/TXRRC_data_harvest/tree/master/Notebooks
 
-The current development is happening in the https://github.com/mlbelobraydi/TXRRC_data_harvest/blob/master/WorkingFileFor_dbf900.py section for those following along.
+<br>
+The current development is happening in the working files:<br>
+Well info: https://github.com/mlbelobraydi/TXRRC_data_harvest/blob/master/WorkingFileFor_dbf900.py <br>
+Oil Prod: https://github.com/mlbelobraydi/TXRRC_data_harvest/blob/master/WorkingFileFor_oilProd.py <br>
+Gas Prod: Coming soon!
 
 ## Install
 
@@ -58,6 +63,7 @@ python WorkingFileFor_dbf900.py --filepath data/dbf900.ebc --outdir outdir
 ...
 # look in outdir for the processed files!
 ```
+
 
 ## TXRRC Data Source
 
