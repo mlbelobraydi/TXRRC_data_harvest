@@ -4,7 +4,11 @@
 
 TXRRC_data_harvest is a set of tools for downloading and organizing oil and gas well data from the [Texas Railroad Commission](https://www.rrc.texas.gov).
 
-This project is currently in an alpha development stage. It is definately a work in progress and will take a bit to get fully organized and usable, so bear please bear with us. We are always happy for any help: pull requests, bug reports, feature requests are all appreciated.
+This project is currently in an alpha development stage. It is definitely a work in progress and will take a bit to get fully organized and usable, so bear please bear with us. 
+
+## Contributing
+
+We are always happy for any help: pull requests, bug reports, feature requests are all appreciated.
 
 ## Project goals
 The goal is to provide scripts to help download and organize the oil and gas well data provided publicly from the Texas Railroad Commission (TXRRC).
