@@ -52,7 +52,6 @@ for block in yield_blocks(file, block_size): ##for each block in file
     and parsing record based on the selected layout
     """
     layout = oilProd_layout(startval)['layout'] ##identifies layout based on record start values
-    print(layout)
     parsed_vals = parse_record(block, layout) ##formats the record and returns a formated {dict} 
 
     temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
