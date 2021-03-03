@@ -1,5 +1,8 @@
 # TXRRC_data_harvest
 
+## Changes
+20210303 - TXRCC have redesigned the website and the locations of the datafiles. We are working to make sure the connections are correct. The file conversion looks to not be affected at this time.
+
 ## About 
 
 TXRRC_data_harvest is a set of tools for downloading and organizing oil and gas well data from the [Texas Railroad Commission](https://www.rrc.texas.gov).
