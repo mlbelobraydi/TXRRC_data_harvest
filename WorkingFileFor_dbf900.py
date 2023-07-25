@@ -10,6 +10,7 @@ import sys
 import pandas as pd
 import json
 from typing import Union
+from tqdm import tqdm
 
 from ebcdic_main import yield_blocks, parse_record
 from layouts_wells_dbf900 import dbf900_layout
@@ -19,7 +20,7 @@ from ebcdic_formats import pic_yyyymmdd, pic_numeric, pic_any
 import warnings
 warnings.filterwarnings(action='ignore', category=FutureWarning, message='The frame.append method is deprecated and will be removed from pandas in a future version.') # setting ignore as a parameter and further adding category
 
-def run_parser(input_ebcdic_file_path: str, out_dir: str, limit_block_count: Union[int, None] = None):
+def run_parser(input_ebcdic_file_path: str, out_dir: str, limit_well_count: Union[int, None] = None):
         
     block_size = 247 ##block size for each record in the file
     ##Unknown if this holds true for all versions of this file or for other files on TXRRC
@@ -30,7 +31,7 @@ def run_parser(input_ebcdic_file_path: str, out_dir: str, limit_block_count: Uni
         api10 = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
         ct = 0 ##counter for number of records
         wellct = 0 ##counter for number of wells
-        estimated_block_count = os.path.getsize(input_ebcdic_file_path) / block_size
+        estimated_total_block_count = int(round(os.path.getsize(input_ebcdic_file_path) / block_size))
         
         """
         DataFrame and JSON items for each sections
@@ -69,11 +70,11 @@ def run_parser(input_ebcdic_file_path: str, out_dir: str, limit_block_count: Uni
         
         """Loop section for all records or partial set"""
         
-        for block in yield_blocks(file, block_size): ##for each block in file
+        for block in tqdm(yield_blocks(file, block_size), total=estimated_total_block_count, unit='block'): ##for each block in file
         
             ##For testing script
-            if limit_block_count and wellct > limit_block_count: ##Stops the loop once a set number of wells has been complete
-                print(f"Reached limit_block_count: {limit_block_count}")
+            if limit_well_count and wellct > limit_well_count: ##Stops the loop once a set number of wells has been complete
+                print(f"Reached limit_well_count: {limit_well_count}")
                 break
         
             startval = pic_any(block[0:2]) ## first two characters of a block
@@ -294,10 +295,10 @@ def run_parser(input_ebcdic_file_path: str, out_dir: str, limit_block_count: Uni
             
             """printable counter and percent to keep track in console"""
             ##the counter isn't necessary, but it helps to determine if it is still running.
-            use_counter = True
+            use_counter = False # disabled since move to tqdm progress bar
             if use_counter:
-                if limit_block_count:
-                    sys.stdout.write(f"\r record:{ct} well#:{wellct}/{limit_block_count} ({round(wellct/limit_block_count*100,2)}%)")
+                if limit_well_count:
+                    sys.stdout.write(f"\r record:{ct} well#:{wellct}/{limit_well_count} ({round(wellct/limit_well_count*100,2)}%)")
                 else:
                     sys.stdout.write(f"\r record:{ct} well#:{wellct}")
                 sys.stdout.flush()
@@ -365,7 +366,7 @@ def get_parser():
 
     parser.add_argument("--filepath", required=False, help="path to source data file (dbf900.ebc)")
     parser.add_argument("--outdir", required=False, help="directory path to write the processed data")
-    parser.add_argument("--limit", required=False, type=int, help="limit the number of blocks processed")
+    parser.add_argument("--limit", required=False, type=int, help="limit to this many wells processed")
     return parser
 
 
@@ -394,19 +395,19 @@ def parse_args():
         out_dir = r"C:\PublicData\Texas\TXRRC\database"
 
     if args.limit:
-        limit_block_count = args.limit
+        limit_well_count = args.limit
     else:
-        limit_block_count = None
+        limit_well_count = None
 
     if not os.path.isdir(out_dir):
         print("Directory Error: {} is not a directory\n".format(out_dir))
         parser.print_help(sys.stderr)
         parser.exit(1)
 
-    return input_file_path, out_dir, limit_block_count
+    return input_file_path, out_dir, limit_well_count
 
     
 if __name__ == '__main__':
-    input_file_path, out_dir, limit_block_count = parse_args()
-    run_parser(input_file_path, out_dir, limit_block_count=limit_block_count)
+    input_file_path, out_dir, limit_well_count = parse_args()
+    run_parser(input_file_path, out_dir, limit_well_count=limit_well_count)
     print('WorkingFileForTesting.py complete.')
