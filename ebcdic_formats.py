@@ -24,7 +24,7 @@ def pic_yyyymmdd(date_data: bytes):
     date = ebc_decode(date_data)
     #Changes format YYYYMMDD from a series of numbers to datetime object
     try:
-        val = datetime.strptime(date, '%Y%m%d').strftime('%m/%d/%Y')
+        val = datetime.strptime(date, '%Y%m%d').strftime('%Y-%m-%d')
     except ValueError:
         val = None
     return val
@@ -34,7 +34,7 @@ def pic_yyyymm(yyyymm_data: bytes):
     #Changes format YYYYMM from a series of numbers to datetime object
     #makes the date the first day of the month
     try:
-        val = date(year=int(yyyymm[0:4]), month=int(yyyymm[4:]), day=1).strftime('%m/01/%Y')
+        val = date(year=int(yyyymm[0:4]), month=int(yyyymm[4:]), day=1).strftime('%Y-%m-%d')
     except ValueError:
         val = None
 
