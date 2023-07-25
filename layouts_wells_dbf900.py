@@ -494,9 +494,10 @@ def dbf900_layout(startval):
                     '27' : {'name': 'WBW3C', 'layout': WBW3C_27},
                     '28' : {'name': 'WB14B2RM', 'layout': WB14B2RM_28}
                   }
-    try:
+    
+    if startval in layouts_map.keys():
         returnval = layouts_map[startval]
-    except:
+    else:
         returnval = None
     
     return returnval
