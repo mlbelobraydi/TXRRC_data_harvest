@@ -10,11 +10,11 @@ from ebcdic_formats import pic_yyyymmdd, pic_yyyymm, pic_numeric, pic_any, pic_s
 ##From https://github.com/skylerbast/TxRRC_data
 ##Generates the block of bytes from the file.
 ## Should be added to dbf900_main_bytes when it is working
-def yield_blocks(file, n):
-    block_bytes = file.read(n)
+def yield_blocks(file: str, number_of_bytes: int):
+    block_bytes = file.read(number_of_bytes)
     while block_bytes:
         yield block_bytes
-        block_bytes = file.read(n)
+        block_bytes = file.read(number_of_bytes)
 
 
 def parse_record(record, layout):

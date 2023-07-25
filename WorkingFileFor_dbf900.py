@@ -9,33 +9,28 @@ import os
 import sys
 import pandas as pd
 import json
+from typing import Union
+
 from ebcdic_main import yield_blocks, parse_record
 from layouts_wells_dbf900 import dbf900_layout
 from ebcdic_formats import pic_yyyymmdd, pic_numeric, pic_any
 
+# TODO: refactor to use something other than Pandas df.append(...)
+import warnings
+warnings.filterwarnings(action='ignore', category=FutureWarning, message='The frame.append method is deprecated and will be removed from pandas in a future version.') # setting ignore as a parameter and further adding category
 
-
-def main():
-    file_path, out_dir = parse_args()
-
-    
-    block_size  = 247 ##block size for each record in the file
+def run_parser(input_ebcdic_file_path: str, out_dir: str, limit_block_count: Union[int, None] = None):
+        
+    block_size = 247 ##block size for each record in the file
     ##Unknown if this holds true for all versions of this file or for other files on TXRRC
     
-    print('opening',file_path,'...')
-    file = open(file_path, 'rb') ##Opens the .ebc file and reads it as bytes
+    print('opening',input_ebcdic_file_path,'...')
+    file = open(input_ebcdic_file_path, 'rb') ##Opens the .ebc file and reads it as bytes
     
-    ##Use limiting counter for testing formatting
-    Limiting_Counter = True
-    
-    """
-    ##Section for testing the outputs
-    """  
-    API = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
+    api10 = None ##this needs to be inplace incase the random part of the array selected does start on an 01 record
     ct = 0 ##counter for number of records
     wellct = 0 ##counter for number of wells
-    check_stop = 100 ##number of loop runs to complete before stopping
-    
+    estimated_block_count = os.path.getsize(input_ebcdic_file_path) / block_size
     
     """
     DataFrame and JSON items for each sections
@@ -77,9 +72,9 @@ def main():
     for block in yield_blocks(file, block_size): ##for each block in file
     
         ##For testing script
-        if Limiting_Counter == True and wellct > check_stop: ##Stops the loop once a set number of wells has been complete
+        if limit_block_count and wellct > limit_block_count: ##Stops the loop once a set number of wells has been complete
+            print(f"Reached limit_block_count: {limit_block_count}")
             break
-        
     
         startval = pic_any(block[0:2]) ## first two characters of a block
         
@@ -88,7 +83,7 @@ def main():
         Reset when new record "01" is found.
         """        
         if startval == '01': ##captures the API number for databasing
-            API = API = '42'+ pic_any(block[2:10]) ##api value in records '01'
+            api10 = '42'+ pic_any(block[2:10]) ##api value in records '01'
             wellct+=1
             ##Might be helpful to find the next occurance of a record staring with "01"
             ##This way all the associated items are added to the right sections with a check of completion
@@ -134,7 +129,7 @@ def main():
         parsed_vals = parse_record(block, layout) ##formats the record and returns a formated {dict} 
 
         temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
-        temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
+        temp_df['api10'] = api10 ##adds API number to record (might need to move this to first position)
         
         """Dataframe loading and correcting (as necessary)"""
         if startval =='01': ##
@@ -255,7 +250,7 @@ def main():
             temp_df['h15_key'] = h15_key ##adds the h15_key from previous 23 record
             
             """grab existing 24 JSON 'h15_remark' field from current section 23 ##None if first"""
-            wbh15rmk_json_24 = wbh15_df.loc[(wbh15_df['api10'] == API) & (wbh15_df['h15_key'] == h15_key), ['h15_remark']].values[0][0]
+            wbh15rmk_json_24 = wbh15_df.loc[(wbh15_df['api10'] == api10) & (wbh15_df['h15_key'] == h15_key), ['h15_remark']].values[0][0]
             
             """ Adds JSON record of 24 to any previous values """
             if wbh15rmk_json_24: ## verifies if the value is not null
@@ -264,7 +259,7 @@ def main():
                 wbh15rmk_json_24 = json.dumps(temp_df.to_json(orient="records"))
             
             """writes record back to the correct position in 23 wbh15_df """
-            wbh15_df.loc[(wbh15_df['api10'] == API) & (wbh15_df['h15_key'] == h15_key), ['h15_remark']] = wbh15rmk_json_24
+            wbh15_df.loc[(wbh15_df['api10'] == api10) & (wbh15_df['h15_key'] == h15_key), ['h15_remark']] = wbh15rmk_json_24
             
             ## Previous version had section 24 output as its own dataframe <to be deleted if all tests ok in new JSON version>
             ##wbh15rmk_df = wbh15rmk_df.append(temp_df, ignore_index=True) ##appends results to dataframe
@@ -281,7 +276,7 @@ def main():
             temp_df['wb14b2ky'] = wb14b2ky ##unique key from 22
             
             """ grabs exising 28 JSON field in 22 wb14b2_df ## None if first """
-            wb14b2rm_json_28 = wb14b2_df.loc[(wb14b2_df['api10'] == API) & (wb14b2_df['wb14b2ky'] == wb14b2ky), ['wb14b2rm']].values[0][0]
+            wb14b2rm_json_28 = wb14b2_df.loc[(wb14b2_df['api10'] == api10) & (wb14b2_df['wb14b2ky'] == wb14b2ky), ['wb14b2rm']].values[0][0]
             
             """ Adds JSON record of 28 to any previous values """
             if wb14b2rm_json_28: ## verifies if the value is not null
@@ -290,18 +285,21 @@ def main():
                 wb14b2rm_json_28 = json.dumps(temp_df.to_json(orient="records"))
             
             """writes record back to the correct position in 22 wb14b2_df """
-            wb14b2_df.loc[(wb14b2_df['api10'] == API) & (wb14b2_df['wb14b2ky'] == wb14b2ky), ['wb14b2rm']] = wb14b2rm_json_28
+            wb14b2_df.loc[(wb14b2_df['api10'] == api10) & (wb14b2_df['wb14b2ky'] == wb14b2ky), ['wb14b2rm']] = wb14b2rm_json_28
             
             ## previous version 28 to seperate dataframe <delete when above works correctly>
             ## wb14b2rm_df = wb14b2rm_df.append(temp_df, ignore_index=True) ##appends results to dataframe
             
-        ct+=1 ## count for number of records being reviewed by script
+        ct += 1 ## count for number of records being reviewed by script
         
         """printable counter and percent to keep track in console"""
         ##the counter isn't necessary, but it helps to determine if it is still running.
         use_counter = True
         if use_counter:
-            sys.stdout.write("\r record:{0} well#:{1}".format(ct,wellct))
+            if limit_block_count:
+                sys.stdout.write(f"\r record:{ct} well#:{wellct}/{limit_block_count} ({round(wellct/limit_block_count*100,2)}%)")
+            else:
+                sys.stdout.write(f"\r record:{ct} well#:{wellct}")
             sys.stdout.flush()
         
     
@@ -312,8 +310,8 @@ def main():
     ##  Need to determine how all the different sections link prior to decision
 
     ##for local storage
-    base_path = out_dir + os.sep + r'dbf900'
-    path_ext = r'.csv'
+    base_path = os.path.join(out_dir, 'dbf900_')
+    path_ext = '.csv'
     
     wbroot_df.to_csv(base_path+'01_wbroot'+path_ext, index=False) ##01
     wbcompl_df.to_csv(base_path+'02_wbcompl'+path_ext, index=False) ##02 
@@ -366,10 +364,9 @@ def get_parser():
         description=desc,
     )
 
-    parser.add_argument("--filepath", required=False, help="path to source data file")
-    parser.add_argument(
-        "--outdir", required=False, help="directory path to write the processed data"
-    )
+    parser.add_argument("--filepath", required=False, help="path to source data file (dbf900.ebc)")
+    parser.add_argument("--outdir", required=False, help="directory path to write the processed data")
+    parser.add_argument("--limit", required=False, type=int, help="limit the number of blocks processed")
     return parser
 
 
@@ -378,15 +375,15 @@ def parse_args():
     args = parser.parse_args(sys.argv[1:])
     if args.filepath:
         # python WorkingFileForTesting.py --filepath data/dbf900.ebc
-        file_path = args.filepath
+        input_file_path = args.filepath
     else:
         ## Default input data source
-        file_path = r"C:\PublicData\Texas\TXRRC\index\dbf900.ebc"
+        input_file_path = r"C:\PublicData\Texas\TXRRC\index\dbf900.ebc"
         ##file origin: ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz
-        ##file size: 1.96MB-ish
+        ##file size: 1.96MB-ish (uuuuh)
 
-    if not os.path.isfile(file_path):
-        print("File Error: {} is not a file\n".format(file_path))
+    if not os.path.isfile(input_file_path):
+        print("File Error: {} is not a file\n".format(input_file_path))
         parser.print_help(sys.stderr)
         parser.exit(1)
 
@@ -397,14 +394,20 @@ def parse_args():
         ## Default local storage location
         out_dir = r"C:\PublicData\Texas\TXRRC\database"
 
+    if args.limit:
+        limit_block_count = args.limit
+    else:
+        limit_block_count = None
+
     if not os.path.isdir(out_dir):
         print("Directory Error: {} is not a directory\n".format(out_dir))
         parser.print_help(sys.stderr)
         parser.exit(1)
 
-    return file_path, out_dir
+    return input_file_path, out_dir, limit_block_count
 
     
-if __name__ == '__main__': 
-    main()
+if __name__ == '__main__':
+    input_file_path, out_dir, limit_block_count = parse_args()
+    run_parser(input_file_path, out_dir, limit_block_count=limit_block_count)
     print('WorkingFileForTesting.py complete.')
