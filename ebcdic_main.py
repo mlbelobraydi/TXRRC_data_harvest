@@ -17,7 +17,6 @@ def yield_blocks(file: str, number_of_bytes: int):
         yield block_bytes
 
 def parse_record(record: bytes, layout: tuple):
-    breakpoint()
     values = dict()
 
     for name, start, size, convert_format in layout:

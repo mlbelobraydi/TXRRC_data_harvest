@@ -12,7 +12,6 @@ from ebcdic_main import yield_blocks, parse_record
 from layouts_oilProd import oilProd_layout
 from ebcdic_formats import pic_any
 
-file_path = r'C:\PublicData\Texas\TXRRC\index\olf001l.ebc' ##Local storage location
 ##file origin: ftp://ftpe.rrc.texas.gov/sholed/olf001l.ebc.gz ## extracted with 7-zip locally
 
 
@@ -54,7 +53,7 @@ for block in yield_blocks(file, block_size): ##for each block in file
     layout = oilProd_layout(startval)['layout'] ##identifies layout based on record start values
     parsed_vals = parse_record(block, layout) ##formats the record and returns a formated {dict} 
 
-    temp_df  = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
+    temp_df = pd.DataFrame([parsed_vals], columns=parsed_vals.keys()) ##convert {dict} to dataframe
     #temp_df['api10'] = API ##adds API number to record (might need to move this to first position)
 
     print(temp_df)
