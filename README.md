@@ -1,7 +1,12 @@
 # TXRRC_data_harvest
 
+## Data Source
+Download files from: https://www.rrc.texas.gov/resource-center/research/data-sets-available-for-download/
+
+* `WorkingFileFor_dbf900.py` references the "Full Wellbore" EBCDIC file named `dbf900.ebc` (which is shared as both a `.gz` and an uncompressed file).
+
 ## Changes
-20210303 - TXRCC have redesigned the website and the locations of the datafiles. We are working to make sure the connections are correct. The file conversion looks to not be affected at this time.
+* 2021-03-03 - TXRCC have redesigned the website and the locations of the datafiles. We are working to make sure the connections are correct. The file formats look to not be affected at this time.
 
 ## About 
 
