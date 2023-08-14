@@ -1,6 +1,6 @@
 """
 This definition file is described in the manual for the dbf900.ebc file (ftp://ftpe.rrc.texas.gov/shfwba/dbf900.ebc.gz)
-manual location: https://www.rrc.texas.gov/media/41906/wba091_well-bore-database.pdf
+manual location: https://www.rrc.texas.gov/media/cx2i4xrm/wba091_well-bore-database.pdf
 
 Some of the definitions have been changed (mostly dates) to better fit the planned SQL tables
 Notes are made of each line as necessary following the entry in the list.
