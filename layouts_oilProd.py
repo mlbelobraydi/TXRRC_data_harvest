@@ -264,9 +264,10 @@ def oilProd_layout(startval):
                     '4' : {'name': 'OIL_MULTI_WELL', 'layout': OIL_MULTI_WELL_04},
                     '5' : {'name': 'OIL_WELL', 'layout': OIL_WELL_05},
                   }
-    try:
+    
+    if startval in layouts_map.keys():
         returnval = layouts_map[startval]
-    except:
+    else:
         returnval = None
     
     return returnval
